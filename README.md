@@ -79,4 +79,4 @@ Project Organization
 
 --------
 
-<p><small>Project derived from the the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>, for experimenting with ideas to improve the template  #cookiecutterdatascience</small></p>
+<p><small>Project derived from the <a target="_blank" href="https://github.com/hackalog/cookiecutter-easydata">Easydata cookiecutter project template</a>, an experimental fork of cookiecutter-data-science.</small></p>
