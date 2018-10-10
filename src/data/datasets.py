@@ -20,11 +20,11 @@ _MODULE_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 
 def add_dataset(rawds):
     """Add a raw dataset to the list of available datasets"""
-    
+
     rawds_list, rds_file_fq = available_datasets(keys_only=False)
     rawds_list[rawds.name] = rawds.to_dict()
     save_json(rds_file_fq, rawds_list)
-    
+
 def load_dataset(dataset_name,
                  cache_path=None,
                  fetch_path=None,
@@ -50,7 +50,7 @@ def load_dataset(dataset_name,
         If True, always regenerate the dataset. If false, a cached result can
     unpack_path: path
         Directory to unpack raw files into
-    
+
     Remaining keywords arguments are passed to the RawDataset's `process()` method
     '''
     dataset_list, _ = available_datasets(keys_only=False)
@@ -60,7 +60,7 @@ def load_dataset(dataset_name,
     raw_ds.fetch(fetch_path=fetch_path, force=force)
     raw_ds.unpack(unpack_path=unpack_path, force=force)
     ds = raw_ds.process(cache_path=cache_path, force=force, **kwargs)
-    
+
     return ds
 
 def available_datasets(raw_dataset_file='datasets.json', raw_dataset_path=None, keys_only=True):
@@ -92,5 +92,5 @@ def available_datasets(raw_dataset_file='datasets.json', raw_dataset_path=None, 
 
     if keys_only:
         return list(raw_dataset_dict.keys())
-    
+
     return raw_dataset_dict, raw_dataset_file_fq

@@ -465,7 +465,7 @@ class RawDataset(object):
             'dataset_dir': str(self.dataset_dir)
         }
         return obj_dict
-        
+
     @classmethod
     def from_dict(cls, obj_dict):
         """Create a RawDataset from a dictionary.
@@ -486,4 +486,3 @@ class RawDataset(object):
                    load_function=load_function,
                    dataset_dir=dataset_dir,
                    file_list=file_list)
-
