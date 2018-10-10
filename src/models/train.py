@@ -4,6 +4,8 @@ import pathlib
 
 from ..paths import trained_model_path
 from ..utils import save_json
+from ..data.datasets import load_dataset
+from .algorithms import available_algorithms
 
 __all__ = [
     'load_model',
@@ -11,11 +13,24 @@ __all__ = [
     'train_model'
 ]
 
-def train_model(**kwargs):
-    """Placeholder for training function"""
-    pass
 
-def save_model(metadata=None, model_path=None, hash_type='sha1', *, model_name, model):
+def train_model(dataset_params=None, algorithm_params=None,
+                run_number=0, *, dataset, algorithm, hash_type,
+                **kwargs):
+    """Train a model using the specified algorithm using the given
+    dataset."""
+    metadata = {}
+    ds = load_dataset(dataset, **dataset_params)
+    metadata['data_hash'] = joblib.hash(ds.data, hash_name=hash_type)
+    metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
+    model = available_algorithms()[algorithm]
+    model.set_params(**algorithm_params)
+    model.fit(ds.data)
+    return model, metadata
+
+
+def save_model(metadata=None, model_path=None, hash_type='sha1',
+               *, model_name, model):
     """Save a model to disk
 
     Parameters
