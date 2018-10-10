@@ -20,5 +20,5 @@ def available_algorithms():
 
     ============     ====================================
     """
-    return _ALGORITHMS
+    return list(_ALGORITHMS.keys())
 
