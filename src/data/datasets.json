@@ -1,1 +1,55 @@
-{}
+{
+  "f-mnist": {
+    "dataset_dir": "/home/ava00088/src/devel/bus_number/data",
+    "load_function_args": [],
+    "load_function_kwargs": {
+      "dataset_name": "f-mnist"
+    },
+    "load_function_module": "src.data.localdata",
+    "load_function_name": "process_mnist",
+    "name": "f-mnist",
+    "url_list": [
+      {
+        "file_name": null,
+        "hash_type": "md5",
+        "hash_value": "8d4fb7e6c68d591d4c3dfef9ec88bf0d",
+        "name": null,
+        "url": "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz"
+      },
+      {
+        "file_name": null,
+        "hash_type": "md5",
+        "hash_value": "25c81989df183df01b3e8a0aad5dffbe",
+        "name": null,
+        "url": "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz"
+      },
+      {
+        "file_name": null,
+        "hash_type": "md5",
+        "hash_value": "bef4ecab320f06d8554ea6380940ec79",
+        "name": null,
+        "url": "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz"
+      },
+      {
+        "file_name": null,
+        "hash_type": "md5",
+        "hash_value": "bb300cfdad3c16e7a12a480ee83cd310",
+        "name": null,
+        "url": "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz"
+      },
+      {
+        "file_name": "f-mnist.license",
+        "hash_type": "sha1",
+        "hash_value": "a8a7a35b62521386e849ce242bdc89964e177b12",
+        "name": "LICENSE",
+        "url": "https://raw.githubusercontent.com/zalandoresearch/fashion-mnist/master/LICENSE"
+      },
+      {
+        "contents": "\nFashion-MNIST\n=============\n\nNotes\n-----\nData Set Characteristics:\n    :Number of Instances: 70000\n    :Number of Attributes: 728\n    :Attribute Information: 28x28 8-bit greyscale image\n    :Missing Attribute Values: None\n    :Creator: Zalando\n    :Date: 2017\n\nThis is a copy of Zalando's Fashion-MNIST [F-MNIST] dataset:\nhttps://github.com/zalandoresearch/fashion-mnist\n\nFashion-MNIST is a dataset of Zalando's article images\u2014consisting of a\ntraining set of 60,000 examples and a test set of 10,000\nexamples. Each example is a 28x28 grayscale image, associated with a\nlabel from 10 classes. Fashion-MNIST is intended to serve as a direct\ndrop-in replacement for the original [MNIST] dataset for benchmarking\nmachine learning algorithms. It shares the same image size and\nstructure of training and testing splits.\n\nReferences\n----------\n  - [F-MNIST] Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms.\n    Han Xiao, Kashif Rasul, Roland Vollgraf. arXiv:1708.07747\n  - [MNIST] The MNIST Database of handwritten digits. Yann LeCun, Corinna Cortes,\n    Christopher J.C. Burges. http://yann.lecun.com/exdb/mnist/\n",
+        "file_name": "f-mnist.readme",
+        "hash_value": "db57a3964b6b3515901f665412297aabf69e007e",
+        "name": "DESCR"
+      }
+    ]
+  }
+}
