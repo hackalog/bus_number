@@ -78,7 +78,7 @@ create_environment:
 ifeq (conda,$(VIRTUALENV))
 		@echo ">>> Detected conda, creating conda environment."
 	conda env create --name $(PROJECT_NAME) -f environment.yml
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+		@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
 else
 	@pip install -q virtualenv virtualenvwrapper
 	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
