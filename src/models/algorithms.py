@@ -1,4 +1,4 @@
-from sklearn.model_selection import GridSearchCV
+import sklearn
 
 _ALGORITHMS = {
 }
