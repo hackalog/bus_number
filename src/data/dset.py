@@ -1,28 +1,20 @@
-import joblib
-import logging
 import os
-import json
 import pathlib
 import sys
-import importlib
+
+import joblib
 from sklearn.datasets.base import Bunch
 from functools import partial
-from joblib import func_inspect as jfi
 
 from ..paths import processed_data_path, data_path, raw_data_path, interim_data_path
 from ..logging import logger
 from .fetch import fetch_file, unpack, get_dataset_filename
-from .utils import partial_call_signature
+from .utils import partial_call_signature, serialize_partial, deserialize_partial, process_dataset_default
 
 _MODULE = sys.modules[__name__]
 _MODULE_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 
 __all__ = ['Dataset', 'RawDataset']
-
-def process_dataset_default(**kwargs):
-    """Placeholder for data processing function"""
-    logger.warning(f"No Processing function defined")
-    return kwargs
 
 class Dataset(Bunch):
     def __init__(self, dataset_name=None, data=None, target=None, metadata=None,
@@ -321,6 +313,8 @@ class RawDataset(object):
 
         if fetch_path is None:
             fetch_path = raw_data_path
+        else:
+            fetch_path = pathlib.Path(fetch_path)
 
         self.fetched_ = False
         self.fetched_files_ = []
@@ -349,6 +343,8 @@ class RawDataset(object):
         else:
             if unpack_path is None:
                 unpack_path = interim_data_path / self.name
+            else:
+                unpack_path = pathlib.Path(unpack_path)
             for filename in self.fetched_files_:
                 unpack(filename, dst_dir=unpack_path)
             self.unpacked_ = True
@@ -357,7 +353,7 @@ class RawDataset(object):
         return self.unpack_path_
 
 
-    def process(self, cache_dir=None, force=False, use_docstring=False,
+    def process(self, cache_path=None, force=False, use_docstring=False,
                 return_X_y=False, **kwargs):
         """Turns the raw dataset into a fully-processed Dataset object.
 
@@ -371,7 +367,7 @@ class RawDataset(object):
         force: boolean
             If False, use a cached object (if available).
             If True, regenerate object from scratch.
-        cache_dir: path
+        cache_path: path
             Location of joblib cache.
         use_docstring: boolean
             If True, the docstring of `self.load_function` is used as the Dataset DESCR text.
@@ -380,8 +376,10 @@ class RawDataset(object):
         if not self.unpacked_:
             raise Exception("Must fetch/unpack before process")
 
-        if cache_dir is None:
-            cache_dir = interim_data_path
+        if cache_path is None:
+            cache_path = interim_data_path
+        else:
+            cache_path = pathlib.Path(cache_path)
 
         # If any of these things change, recreate and cache a new Dataset
         cached_meta = {
@@ -395,7 +393,7 @@ class RawDataset(object):
         dset_opts = {}
         if force is False:
             try:
-                dset = Dataset.load(meta_hash, data_path=cache_dir)
+                dset = Dataset.load(meta_hash, data_path=cache_path)
                 logger.debug(f"Found cached Dataset for {self.name}: {meta_hash}")
             except FileNotFoundError:
                 logger.debug(f"No cached Dataset found. Re-creating {self.name}")
@@ -406,7 +404,7 @@ class RawDataset(object):
             kwargs['metadata'] = {**metadata, **supplied_metadata}
             dset_opts = self.load_function(**kwargs)
             dset = Dataset(**dset_opts)
-            dset.dump(data_path=cache_dir, file_base=meta_hash)
+            dset.dump(data_path=cache_path, file_base=meta_hash)
 
         if return_X_y:
             return dset.data, dset.target
@@ -453,89 +451,39 @@ class RawDataset(object):
             metadata['descr'] =  f'Data processed by: {fqfunc}\n\n>>> ' + \
               f'{invocation}\n\n>>> help({func.func.__name__})\n\n' + \
               f'{func.func.__doc__}'
-        else:
-            descr_txt = None
 
         metadata['dataset_name'] = self.name
         return metadata
 
-    def to_json(self, indent=4, sort_keys=True):
-        """Convert a RawDataset to json"""
-
+    def to_dict(self):
+        """Convert a RawDataset to a serializable dictionary"""
         load_function_dict = serialize_partial(self.load_function)
-        json_dict = {
+        obj_dict = {
             'url_list': self.file_list,
-            **load_function_dict
+            **load_function_dict,
+            'name': self.name,
+            'dataset_dir': str(self.dataset_dir)
         }
-        return json.dumps(json_dict)
-
+        return obj_dict
+        
     @classmethod
-    def from_json(cls, name, dataset_dir=None, *, json_str):
-        """Create a RawDataset from a json string
-        """
-        json_dict = json.loads(json_str)
-        file_list = json_dict.get('url_list', [])
-        load_function = deserialize_partial(json_dict)
+    def from_dict(cls, obj_dict):
+        """Create a RawDataset from a dictionary.
 
+        name: str
+            dataset name
+        dataset_dir: path
+            pathname to load and save dataset
+        obj_dict: dict
+            Should contain url_list, and load_function_{name|module|args|kwargs} keys,
+            name, and dataset_dir
+        """
+        file_list = obj_dict.get('url_list', [])
+        load_function = deserialize_partial(obj_dict)
+        name = obj_dict['name']
+        dataset_dir = obj_dict.get('dataset_dir', None)
         return cls(name=name,
                    load_function=load_function,
                    dataset_dir=dataset_dir,
                    file_list=file_list)
 
-def deserialize_partial(func_dict, delete_keys=False):
-    """Convert a serialized function call into a partial
-
-    Parameters
-    ----------
-    func_dict: dict containing
-        load_function_name: function name
-        load_function_module: module containing function
-        load_function_args: args to pass to function
-        load_function_kwargs: kwargs to pass to function
-    """
-
-    if delete_keys:
-        args = func_dict.pop("load_function_args", [])
-        kwargs = func_dict.pop("load_function_kwargs", {})
-        base_name = func_dict.pop("load_function_name", 'process_dataset_default')
-        func_mod_name = func_dict.pop('load_function_module', None)
-    else:
-        args = func_dict.get("load_function_args", [])
-        kwargs = func_dict.get("load_function_kwargs", {})
-        base_name = func_dict.get("load_function_name", 'process_dataset_default')
-        func_mod_name = func_dict.get('load_function_module', None)
-
-    fail_func = partial(process_dataset_default, dataset_name=base_name)
-
-    if func_mod_name:
-        func_mod = importlib.import_module(func_mod_name)
-    else:
-        func_mod = _MODULE
-    func_name = getattr(func_mod, base_name, fail_func)
-    func = partial(func_name, *args, **kwargs)
-
-    return func
-
-def serialize_partial(func):
-    """Serialize a function call to a dictionary.
-
-    Parameters
-    ----------
-    func: partial function.
-
-    Returns
-    -------
-    dict containing:
-        load_function_name: function name
-        load_function_module: fully-qualified module name containing function
-        load_function_args: args to pass to function
-        load_function_kwargs: kwargs to pass to function
-    """
-
-    func = partial(func)
-    entry = {}
-    entry['load_function_module'] = ".".join(jfi.get_func_name(func.func)[0])
-    entry['load_function_name'] = jfi.get_func_name(func.func)[1]
-    entry['load_function_args'] = func.args
-    entry['load_function_kwargs'] = func.keywords
-    return entry
