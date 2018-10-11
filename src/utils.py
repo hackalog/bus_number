@@ -38,6 +38,24 @@ def normalize_numpy_dict(d):
             ret[k] = np.asscalar(v)
     return ret
 
-def save_json(filename, obj):
+def save_json(filename, obj, indent=2, sort_keys=True):
+    """Dump an object to disk in json format
+
+    filename: pathname
+        Filename to dump to
+    obj: object
+        Object to dump
+    indent: integer
+        number of characters to indent
+    sort_keys: boolean
+        Whether to sort keys before writing. Should be True if you ever use revision control
+        on the resulting json file.
+    """
     with open(filename, 'w') as fw:
-        json.dump(obj, fw, indent=2, sort_keys=True)
+        json.dump(obj, fw, indent=indent, sort_keys=sort_keys)
+
+def load_json(filename):
+    """Read a json file from disk"""
+    with open(filename) as fw:
+        obj = json.load(fw)
+    return obj
