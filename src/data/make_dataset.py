@@ -4,7 +4,8 @@ import logging
 import os
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-from .datasets import available_datasets, load_dataset, fetch_and_unpack
+from .datasets import available_datasets, load_dataset
+from .dset import RawDataset
 from ..paths import data_path
 from ..logging import logger
 
@@ -24,14 +25,19 @@ def main(action, datasets=None):
     logger.info(f'Dataset: running {action}')
 
     if datasets is None:
-        datasets = available_datasets()
+        datasets, _ = available_datasets(keys_only=False)
 
-    unpacked_datasets = {}
     for dataset_name in datasets:
+        raw_ds = RawDataset.from_dict(datasets[dataset_name])
         if action == 'fetch':
-            unpacked_datasets[dataset_name] = fetch_and_unpack(dataset_name, do_unpack=False)
+            raw_ds.fetch()
+        elif action == 'unpack':
+            raw_ds.fetch()
+            raw_ds.unpack()
         elif action == 'process':
-            ds = load_dataset(dataset_name)
+            raw_ds.fetch()
+            raw_ds.unpack()
+            ds = raw_ds.process()
 
 
 if __name__ == '__main__':
