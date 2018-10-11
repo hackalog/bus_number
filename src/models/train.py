@@ -25,7 +25,7 @@ def train_model(dataset_params=None, algorithm_params=None,
     metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
     model = available_algorithms()[algorithm]
     model.set_params(**algorithm_params)
-    model.fit(ds.data)
+    model.fit(ds.data, y=ds.target)
     return model, metadata
 
 
