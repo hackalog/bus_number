@@ -224,10 +224,33 @@ class RawDataset(object):
                  load_function=None,
                  dataset_dir=None,
                  file_list=None):
+        """Create a RawDataset
+        Parameters
+        ----------
+        name: str
+            name of dataset
+        load_function: func (or partial)
+            Function that will be called to process raw data into usable Dataset
+        dataset_dir: path
+            default location for raw files
+        file_list: list
+            list of file_dicts associated with this RawDataset.
+            Valid keys for each file_dict include:
+                url: (optional)
+                    URL of resource to be fetched
+                hash_type: {'sha1', 'md5', 'sha256'}
+                    Type of hash function used to verify file integrity
+                hash_value: string
+                    Value of hash used to verify file integrity
+                file_name: string (optional)
+                    filename to use when saving file locally.
+                name: string or {'DESCR', 'LICENSE'} (optional)
+                    description of the file. of DESCR or LICENSE, will be used as metadata
+        """
         if file_list is None:
             file_list = []
         if dataset_dir is None:
-            dataset_dir = data_path
+            dataset_dir = raw_data_path
         if load_function is None:
             load_function = process_dataset_default
         self.name = name
@@ -278,6 +301,32 @@ class RawDataset(object):
         self.file_list.append(filelist_entry)
         self.fetched_ = False
 
+    def add_file(self, hash_type='sha1', hash_value=None,
+                 name=None, *, file_name):
+        """
+        Add a file to the file list.
+
+        This file must exist on disk, as there is no method specified for fetching it.
+        This is useful when the raw dataset requires an offline procedure for downloading.
+
+        hash_type: {'sha1', 'md5', 'sha256'}
+        hash_value: string or None
+            if None, hash will be computed from specified file
+        file_name: string
+            Name of downloaded file.
+        name: str
+            text description of this file.
+        """
+        fq_file = pathlib.Path(self.dataset_dir) / file_name 
+        if not fq_file.exists():
+            logger.warning(f"{file_name} not found on disk")
+        fetch_dict = {'hash_type':hash_type,
+                      'hash_value':hash_value,
+                      'name': name,
+                      'file_name':file_name}
+        self.file_list.append(fetch_dict)
+        self.fetched_ = False
+
     def add_url(self, url=None, hash_type='sha1', hash_value=None,
                 name=None, file_name=None):
         """
@@ -290,8 +339,6 @@ class RawDataset(object):
             Name of downloaded file. If None, will be the last component of the URL
         url: string
             URL to fetch
-        file_name: string or None
-            Name of downloaded file. If None, will be the last component of the URL
         name: str
             text description of this file.
         """
@@ -312,7 +359,7 @@ class RawDataset(object):
             return
 
         if fetch_path is None:
-            fetch_path = raw_data_path
+            fetch_path = self.dataset_dir
         else:
             fetch_path = pathlib.Path(fetch_path)
 

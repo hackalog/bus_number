@@ -11,6 +11,7 @@ from ..logging import logger
 from ..utils import load_json, save_json
 
 __all__ = [
+    'add_dataset',
     'available_datasets',
     'load_dataset',
 ]
