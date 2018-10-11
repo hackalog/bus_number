@@ -22,13 +22,13 @@ def main(action, datasets=None):
     action: {'fetch', 'process'}
 
     """
-    logger.info(f'Dataset: running {action}')
 
     if datasets is None:
         datasets, _ = available_datasets(keys_only=False)
 
     for dataset_name in datasets:
         raw_ds = RawDataset.from_dict(datasets[dataset_name])
+        logger.info(f'Running running {action} on {dataset_name}')
         if action == 'fetch':
             raw_ds.fetch()
         elif action == 'unpack':
@@ -38,6 +38,7 @@ def main(action, datasets=None):
             raw_ds.fetch()
             raw_ds.unpack()
             ds = raw_ds.process()
+            logger.info(f'{dataset_name}: processed data has shape:{ds.data.shape}')
 
 
 if __name__ == '__main__':
