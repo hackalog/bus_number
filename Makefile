@@ -32,8 +32,12 @@ data: requirements process_data
 fetch_data:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
 
+## Unpack the data
+unpack_data: fetch_data
+	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
+
 ## Fetch and process the data
-process_data: fetch_data
+process_data: unpack_data
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 ## train / fit / build models
