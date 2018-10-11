@@ -383,7 +383,8 @@ class RawDataset(object):
     def unpack(self, unpack_path=None, force=False):
         """Unpack fetched files to interim dir"""
         if not self.fetched_:
-            raise Exception("Must fetch before unpack")
+            logger.debug("unpack() called before fetch()")
+            self.fetch()
 
         if self.unpacked_ and force is False:
             logger.debug(f'Raw Dataset {self.name} is already unpacked. Skipping')
