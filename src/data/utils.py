@@ -7,6 +7,8 @@ import numpy as np
 from functools import partial
 from joblib import func_inspect as jfi
 
+from ..logging import logger
+
 __all__ = [
     'deserialize_partial',
     'head_file',

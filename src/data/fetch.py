@@ -306,7 +306,7 @@ def unpack(filename, dst_dir=None, create_dst=True):
             logger.debug(f"Extracting {filename.name}")
         else:
             outfile = pathlib.Path(outfile).name
-            logger.info(f"{verb} {outfile}")
+            logger.debug(f"{verb} {outfile}")
             with open(pathlib.Path(dst_dir) / outfile, outmode) as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
