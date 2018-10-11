@@ -6,6 +6,8 @@
       "random_state": 42
     },
     "dataset": "lvq-pak",
-    "dataset_params": {}
+    "dataset_params": {
+      "kind": "train"
+    }
   }
 ]
