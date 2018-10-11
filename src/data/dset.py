@@ -317,7 +317,7 @@ class RawDataset(object):
         name: str
             text description of this file.
         """
-        fq_file = pathlib.Path(self.dataset_dir) / file_name 
+        fq_file = pathlib.Path(self.dataset_dir) / file_name
         if not fq_file.exists():
             logger.warning(f"{file_name} not found on disk")
         fetch_dict = {'hash_type':hash_type,
@@ -399,9 +399,12 @@ class RawDataset(object):
 
         return self.unpack_path_
 
-
-    def process(self, cache_path=None, force=False, use_docstring=False,
-                return_X_y=False, **kwargs):
+    def process(self,
+                cache_path=None,
+                force=False,
+                return_X_y=False,
+                use_docstring=False,
+                **kwargs):
         """Turns the raw dataset into a fully-processed Dataset object.
 
         This generated Dataset object is cached using joblib, so subsequent
@@ -409,19 +412,19 @@ class RawDataset(object):
 
         Parameters
         ----------
-        return_X_y: boolean
-            if True, returns (data, target) instead of a `Dataset` object.
+        cache_path: path
+            Location of joblib cache.
         force: boolean
             If False, use a cached object (if available).
             If True, regenerate object from scratch.
-        cache_path: path
-            Location of joblib cache.
+        return_X_y: boolean
+            if True, returns (data, target) instead of a `Dataset` object.
         use_docstring: boolean
             If True, the docstring of `self.load_function` is used as the Dataset DESCR text.
         """
-
         if not self.unpacked_:
-            raise Exception("Must fetch/unpack before process")
+            logger.debug("process() called before unpack()")
+            self.unpack()
 
         if cache_path is None:
             cache_path = interim_data_path
