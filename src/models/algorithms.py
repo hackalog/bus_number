@@ -18,5 +18,5 @@ def available_algorithms():
 
     ============     ====================================
     """
-    return_ALGORITHMS
+    return _ALGORITHMS
 
