@@ -15,15 +15,15 @@ __all__ = [
 
 
 def train_model(dataset_params=None, algorithm_params=None,
-                run_number=0, *, dataset, algorithm, hash_type,
+                run_number=0, *, dataset_name, algorithm_name, hash_type,
                 **kwargs):
     """Train a model using the specified algorithm using the given
     dataset."""
     metadata = {}
-    ds = load_dataset(dataset, **dataset_params)
+    ds = load_dataset(dataset_name, **dataset_params)
     metadata['data_hash'] = joblib.hash(ds.data, hash_name=hash_type)
     metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
-    model = available_algorithms()[algorithm]
+    model = available_algorithms()[algorithm_name]
     model.set_params(**algorithm_params)
     model.fit(ds.data, y=ds.target)
     return model, metadata

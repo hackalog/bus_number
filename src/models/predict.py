@@ -13,14 +13,14 @@ from .train import load_model
 __all__ = ['run_model']
 
 
-def run_model(dataset_opts=None,
+def run_model(dataset_params=None,
               run_number=0,
               experiment_info=None,
               output_path=None,
               hash_type='sha1',
               file_base=None,
               force=False, *,
-              dataset_name, model_name):
+              dataset_name, model_name, is_supervised):
     '''Run a model on a dataset (predict/transform)
 
     Runs an algorithm_object on the dataset and returns a new
@@ -31,7 +31,7 @@ def run_model(dataset_opts=None,
     ----------
     dataset_name: str, valid dataset name
         Name of a dataset object that will be run through the model
-    dataset_opts: dict
+    dataset_params: dict
         Options to be passed when creating/loading the dataset
     model_name: str, valid model name
         name of the model that will transform the data
@@ -60,12 +60,12 @@ def run_model(dataset_opts=None,
     if file_base is None:
         file_base = f'{model_name}_exp_{dataset_name}_{run_number}'
 
-    if dataset_opts is None:
-        dataset_opts = {}
+    if dataset_params is None:
+        dataset_params = {}
 
     os.makedirs(output_path, exist_ok=True)
 
-    dataset = datasets.load_dataset(dataset_name, **dataset_opts)
+    dataset = datasets.load_dataset(dataset_name, **dataset_params)
 
     model, model_meta = load_model(model_name)
 
@@ -73,7 +73,7 @@ def run_model(dataset_opts=None,
     experiment = {
         'model_name': model_name,
         'dataset_name': dataset_name,
-        'dataset_opts': dataset_opts,
+        'dataset_params': dataset_params,
         'run_number': run_number,
         'hash_type': hash_type,
         'data_hash': joblib.hash(dataset.data, hash_name=hash_type),
@@ -97,12 +97,16 @@ def run_model(dataset_opts=None,
 
     # Either force is True, or we need to rerun the algorithm.
     start_time = time.time()
-    if hasattr(model, 'transform'):
-        logger.debug('Transform found. Skipping fit')
-        exp_data = model.transform(dataset.data)
+    if is_supervised:
+        exp_data = model.predict(dataset.data)
     else:
-        logger.debug('No Transform found. Running fit_transform')
-        exp_data = model.fit_transform(dataset.data)
+        if hasattr(model, 'transform'):
+            logger.debug('Transform found. Skipping fit')
+            exp_data = model.transform(dataset.data)
+        else:
+            logger.debug('No Transform found. Running fit_transform')
+            exp_data = model.fit_transform(dataset.data)
+
     end_time = record_time_interval(file_base, start_time)
 
     experiment['start_time'] = start_time
@@ -115,3 +119,37 @@ def run_model(dataset_opts=None,
                           descr_txt=experiment_info)
     new_dataset.dump(file_base=file_base, data_path=output_path, force=True)
     return new_dataset
+
+
+def load_prediction(predict_name=None, metadata_only=False, predict_path=None):
+    """Load a prediction (or prediction metadata)
+
+    Parameters
+    ----------
+    metadata_only: boolean
+        If True, just return the prediction metadata.
+    predict_path:
+    predict_name:
+
+    Returns
+    -------
+    If `metadata_only` is True:
+
+        dict containing predict_metadata
+
+    else:
+
+        The tuple (predict, predict_metadata)
+    """
+    if predict_name is None:
+        raise Exception("predict_name must be specified")
+    if predict_path is None:
+        predict_path = model_output_path
+    else:
+        predict_path = pathlib.Path(predict_path)
+
+    fq_predict = predict_path / f'{predict_name}'
+
+    predict = Dataset.load(fq_predict, metadata_only=metadata_only)
+
+    return predict
