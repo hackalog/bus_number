@@ -1,4 +1,7 @@
+from sklearn.svm import LinearSVC
+
 _ALGORITHMS = {
+    'linearSVC': LinearSVC()
 }
 
 def available_algorithms():
@@ -15,7 +18,7 @@ def available_algorithms():
     ============     ====================================
     Algorithm        Function
     ============     ====================================
-
+    LinearSVC        sklearn.svm.LinearSVC
     ============     ====================================
     """
     return _ALGORITHMS
