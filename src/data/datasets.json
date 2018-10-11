@@ -53,7 +53,7 @@
     ]
   },
   "lvq-pak": {
-    "dataset_dir": "/home/ava00088/src/devel/bus_number/data",
+    "dataset_dir": "/home/ava00088/src/devel/bus_number/data/raw",
     "load_function_args": [],
     "load_function_kwargs": {},
     "load_function_module": "src.data.localdata",

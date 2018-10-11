@@ -433,12 +433,8 @@ class RawDataset(object):
             cache_path = pathlib.Path(cache_path)
 
         # If any of these things change, recreate and cache a new Dataset
-        cached_meta = {
-            'dataset_name': self.name,
-            'file_list': self.file_list,
-            **kwargs
-        }
-        meta_hash = joblib.hash(cached_meta, hash_name='sha1')
+
+        meta_hash = self.to_hash(**kwargs)
 
         dset = None
         dset_opts = {}
@@ -505,6 +501,30 @@ class RawDataset(object):
 
         metadata['dataset_name'] = self.name
         return metadata
+
+    def to_hash(self, ignore=None, hash_type='sha1', **kwargs):
+        """Compute a hash for this object.
+
+        converts this object to a dict, and hashes the result,
+        adding or removing keys as specified.
+
+        hash_type: {'md5', 'sha1', 'sha256'}
+            Hash algorithm to use
+        ignore: list
+            list of keys to ignore
+        kwargs:
+            key/value pairs to add before hashing
+        """
+        if ignore is None:
+            ignore = ['dataset_dir']
+        my_dict = {**self.to_dict(), **kwargs}
+        for key in ignore:
+            my_dict.pop(key, None)
+
+        return joblib.hash(my_dict, hash_name=hash_type)
+
+    def __hash__(self):
+        return hash(self.to_hash())
 
     def to_dict(self):
         """Convert a RawDataset to a serializable dictionary"""
