@@ -1,6 +1,7 @@
 import importlib
 import os
 import pathlib
+import random
 import sys
 import pandas as pd
 import numpy as np
@@ -16,6 +17,7 @@ __all__ = [
     'normalize_labels',
     'partial_call_signature',
     'read_space_delimited',
+    'reservoir_sample',
     'serialize_partial',
 ]
 
@@ -176,3 +178,28 @@ def serialize_partial(func):
     entry['load_function_args'] = func.args
     entry['load_function_kwargs'] = func.keywords
     return entry
+
+def reservoir_sample(filename, n_samples=1, random_seed=None):
+    """Return a random subset of lines from a file
+
+    Parameters
+    ----------
+    filename: path
+        File to be loaded
+    n_samples: int
+        number of lines to return
+    random_seed: int or None
+        If set, use this as the random seed
+    """
+    if random_seed is not None:
+        random.seed(random_seed)
+    sample = []
+    with open(filename) as f:
+        for n, line in enumerate(f):
+            if n < n_samples:
+                sample.append(line.rstrip())
+            else:
+                r = random.randint(0, n_samples)
+                if r < n_samples:
+                    sample[r] = line.rstrip()
+    return sample
