@@ -9,7 +9,7 @@ from ..logging import logger
 from ..utils import save_json
 from ..paths import model_path, trained_model_path
 from .train import train_model, save_model
-from ..data.datasets import available_datasets
+from ..data import available_datasets
 from .algorithms import available_algorithms
 
 
