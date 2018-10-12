@@ -218,7 +218,7 @@ def fetch_file(url=None, contents=None,
                 return True, raw_data_file, raw_file_hash
 
     if url is None and contents is None:
-        raise Exception("One of `url` or `contents` must be specified if `file_name` doesn't yet exist")
+        raise Exception(f"Cannot proceed: {file_name} not found on disk, and no fetch information (`url` or `contents`) specified.")
 
     if url is not None:
         # Download the file
