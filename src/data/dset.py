@@ -19,7 +19,6 @@ __all__ = ['Dataset', 'RawDataset']
 
 class Dataset(Bunch):
     def __init__(self, dataset_name=None, data=None, target=None, metadata=None,
-                 license_txt=None, descr_txt=None, license_file=None, descr_file=None,
                  **kwargs):
         """
         Object representing a dataset object.
@@ -34,15 +33,6 @@ class Dataset(Bunch):
             in `data`
         metadata: dict
             Data about the object. Key fields include `license_txt` and `descr`
-        license_txt: str
-            String to use as the LICENSE for this dataset
-        license_file: filename
-            If `license_txt` is None, license text can be read from this file
-        descr_txt: str
-            String to use as the DESCR (description) for this dataset
-        descr_file: filename
-            If `descr_txt` is None, description text can be read from this file
-
         """
         super().__init__(**kwargs)
 
@@ -57,16 +47,6 @@ class Dataset(Bunch):
         else:
             self['metadata'] = {}
         self['metadata']['dataset_name'] = dataset_name
-        if license_file is not None:
-            with open(license_file, 'r') as f:
-                license_txt = f.read()
-        if license_txt is not None:
-            self['metadata']['license'] = license_txt
-        if descr_file is not None:
-            with open(descr_file, 'r') as f:
-                descr_txt = f.read()
-        if descr_txt is not None:
-            self['metadata']['descr'] = descr_txt
         self['data'] = data
         self['target'] = target
 
