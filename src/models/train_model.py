@@ -67,14 +67,14 @@ def main(model_list, *, output_file, hash_type):
 
     metadata_dict = {}  # Used to ensure uniqueness of keys
     for td in training_dicts:
-        ds_name = td.get('dataset', None)
+        ds_name = td.get('dataset_name', None)
         assert ds_name in dataset_list, f'Unknown Dataset: {ds_name}'
 
-        alg_name = td.get('algorithm', None)
+        alg_name = td.get('algorithm_name', None)
         assert alg_name in algorithm_list, f'Unknown Algorithm: {alg_name}'
 
         run_number = td.get('run_number', 0)
-        model_key = f"{td['algorithm']}_{td['dataset']}_{run_number}"
+        model_key = f"{alg_name}_{ds_name}_{run_number}"
         if model_key in metadata_dict:
             raise Exception("{id_base} already exists. Give a unique " +
                             "`run_number` to avoid collisions.")
