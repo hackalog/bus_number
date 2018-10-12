@@ -5,28 +5,26 @@ import os
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 from .datasets import available_raw_datasets, RawDataset
-from ..paths import data_path
 from ..logging import logger
 
 @click.command()
 @click.argument('action')
-def main(action, datasets=None):
+def main(action, raw_datasets=None):
     """Fetch and/or process the raw data
 
-    Runs data processing scripts to turn raw data from (../raw) into
+    Raw files are downloaded into .paths.raw_data_path
+    Interim files are generated in .paths.interim_data_path
+    Processed data files are saved in .paths.processed_data_path
 
-    Raw files are downloaded into `project_dir`/data/raw
-    Interim files are generated in `project_dir`/data/interim
-
-    action: {'fetch', 'process'}
+    action: {'fetch', 'unpack', 'process'}
 
     """
 
-    if datasets is None:
-        datasets, _ = available_raw_datasets(keys_only=False)
+    if raw_datasets is None:
+        raw_datasets = available_raw_datasets()
 
-    for dataset_name in datasets:
-        raw_ds = RawDataset.from_dict(datasets[dataset_name])
+    for dataset_name in raw_datasets:
+        raw_ds = RawDataset.from_name(dataset_name)
         logger.info(f'Running {action} on {dataset_name}')
         if action == 'fetch':
             raw_ds.fetch()
