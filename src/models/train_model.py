@@ -82,17 +82,17 @@ def main(model_list, *, output_file, hash_type):
             td['run_number'] = run_number
             metadata_dict[model_key] = td
 
-        saved_meta = {}
-        for model_key, td in metadata_dict.items():
-            logger.debug(f'Creating model for {model_key}')
-            trained_model, added_metadata = train_model(hash_type=hash_type,
-                                                        **td)
-            # replace specified params with full set of params used
-            td['algorithm_params'] = dict(trained_model.get_params())
-            new_metdata = {**td, **added_metadata}
-            saved_meta[model_key] = save_model(model_name=model_key,
-                                               model=trained_model,
-                                               metadata=new_metdata)
+    saved_meta = {}
+    for model_key, td in metadata_dict.items():
+        logger.debug(f'Creating model for {model_key}')
+        trained_model, added_metadata = train_model(hash_type=hash_type,
+                                                    **td)
+        # replace specified params with full set of params used
+        td['algorithm_params'] = dict(trained_model.get_params())
+        new_metdata = {**td, **added_metadata}
+        saved_meta[model_key] = save_model(model_name=model_key,
+                                           model=trained_model,
+                                           metadata=new_metdata)
 
     logger.debug(f"output dir: {model_path}")
     logger.debug(f"output filename: {output_file}")

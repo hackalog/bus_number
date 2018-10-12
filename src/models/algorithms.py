@@ -1,8 +1,11 @@
-from sklearn.svm import LinearSVC
+from ..utils import logger
 
-_ALGORITHMS = {
-    'linearSVC': LinearSVC()
-}
+from sklearn.base import BaseEstimator
+from sklearn.svm import LinearSVC
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
 
 def available_algorithms():
     """Valid Algorithms for training or prediction
@@ -15,11 +18,64 @@ def available_algorithms():
 
     The valid algorithm names, and the function they map to, are:
 
-    ============     ====================================
-    Algorithm        Function
-    ============     ====================================
-    LinearSVC        sklearn.svm.LinearSVC
-    ============     ====================================
+    ============                 ====================================
+    Algorithm                    Function
+    ============                 ====================================
+    LinearSVC                    sklearn.svm.LinearSVC
+    GradientBoostingClassifier   sklearn.ensemble.GradientBoostingClassifier
+    ============                 ====================================
     """
     return _ALGORITHMS
+
+
+class ComboGridSearchCV(BaseEstimator):
+    '''
+    Parameters
+    ----------
+    alg_name: str
+        name of the algorithm to perform grid search over. name should
+        be a key in the available_algorithms
+    alg_params: dict
+        these are the parameters for alg_name that will be fixed
+    gridsearch_params: dict
+        dict of parameters to grid search over
+    params: dict
+        other parameters to GridSearchCV
+    '''
+    def __init__(self, gridsearch_params=None,
+                 alg_name=None,
+                 alg_params=None,
+                 params=None):
+        '''
+        Init a GridSearchCV with the appropriate input parameters.
+        '''
+        self.gridsearch_params = gridsearch_params
+        self.alg_name = alg_name
+        self.alg_params = alg_params
+        self.params = params
+        self.GSCV_ = None 
+
+    def fit(self, X, y=None, **kwargs):
+        alg = available_algorithms()[self.alg_name]
+        alg.set_params(**self.alg_params)
+        self.GSCV_ = GridSearchCV(alg, self.gridsearch_params, **self.params)
+        self.GSCV_.fit(X, y=y, **kwargs)
+
+    def transform(self, X, y=None, **kwargs):
+        if self.GSCV_ is None:
+            logger.warning("fit must be run before transform")
+        return self.GSCV_.transform(X, y=y, **kwargs)
+
+    def predict(self, X, y=None, **kwargs):
+        if self.GSCV_ is None:
+            logger.warning("fit must be run before precit")
+        return self.GSCV_.predict(X, y=y, **kwargs)
+        
+        
+_ALGORITHMS = {
+    'linearSVC': LinearSVC(),
+    'GradientBoostingClassifier': GradientBoostingClassifier(),
+    'GridSearchCV': ComboGridSearchCV(),
+    'RandomForestClassifier': RandomForestClassifier(),
+}
 
