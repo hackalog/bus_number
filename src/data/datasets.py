@@ -134,6 +134,10 @@ class Dataset(Bunch):
     def name(self):
         return self['metadata'].get('dataset_name', None)
 
+    @name.setter
+    def name(self, val):
+        self['metadata']['dataset_name'] = val
+
     @property
     def has_target(self):
         return self['target'] is not None
@@ -244,25 +248,22 @@ class Dataset(Bunch):
         if self.data is None:
             raise Exception("Cannot split empty Dataset")
 
-        train = Dataset(dataset_name=f"{self.name}_train", metadata=self.metadata.copy())
-        train.metadata['split_options'] = kwargs
-        train.metadata['split'] = 'train'
-        test = Dataset(dataset_name=f"{self.name}_test", metadata=self.metadata.copy())
-        test.metadata['split_options'] = kwargs
-        test.metadata['split'] = 'test'
+        self.metadata['split_options'] = kwargs
 
         X_train, X_test, y_train, y_test = train_test_split(
             self.data, self.target, **kwargs)
-        train.data, train.target = X_train, y_train
-        test.data, test.target = X_test, y_test
+        self.train_data = X_train
+        self.train_target = y_train
+        self.test_data = X_test
+        self.test_target = y_test
 
-        return train, test
-
-    def dump(self, file_base=None, data_path=None, hash_type='sha1',
+    def dump(self, file_base=None, dump_path=None, hash_type='sha1',
              force=True, create_dirs=True, dump_metadata=True):
         """Dump a dataset.
 
-        Note, this dumps a separate metadata structure, so that dataset
+        Note, this dumps a separate copy of the metadata structure,
+        so that metadata can be looked up without loading the entire dataset,
+        which could be large
 
         dump_metadata: boolean
             If True, also dump a standalone copy of the metadata.
@@ -272,18 +273,18 @@ class Dataset(Bunch):
             Filename stem. By default, just the dataset name
         hash_type: {'sha1', 'md5'}
             Hash function to use for hashing data/labels
-        data_path: path. (default: `processed_data_path`)
+        dump_path: path. (default: `processed_data_path`)
             Directory where data will be dumped.
         force: boolean
             If False, raise an exception if the file already exists
             If True, overwrite any existing files
         create_dirs: boolean
-            If True, `data_path` will be created (if necessary)
+            If True, `dump_path` will be created (if necessary)
 
         """
-        if data_path is None:
-            data_path = processed_data_path
-        data_path = pathlib.Path(data_path)
+        if dump_path is None:
+            dump_path = processed_data_path
+        dump_path = pathlib.Path(dump_path)
 
         if file_base is None:
             file_base = self.name
@@ -292,7 +293,7 @@ class Dataset(Bunch):
 
         metadata_filename = file_base + '.metadata'
         dataset_filename = file_base + '.dataset'
-        metadata_fq = data_path / metadata_filename
+        metadata_fq = dump_path / metadata_filename
 
         data_hashes = self.get_data_hashes(hash_type=hash_type)
         self['metadata'] = {**self['metadata'], **data_hashes}
@@ -318,12 +319,12 @@ class Dataset(Bunch):
         if dump_metadata:
             with open(metadata_fq, 'wb') as fo:
                 joblib.dump(metadata, fo)
-            logger.debug(f'Wrote {metadata_filename}')
+            logger.debug(f'Wrote Dataset Metadata: {metadata_filename}')
 
-        dataset_fq = data_path / dataset_filename
+        dataset_fq = dump_path / dataset_filename
         with open(dataset_fq, 'wb') as fo:
             joblib.dump(self, fo)
-        logger.debug(f'Wrote {dataset_filename}')
+        logger.debug(f'Wrote Dataset: {dataset_filename}')
 
 
 class RawDataset(object):
@@ -561,7 +562,7 @@ class RawDataset(object):
             kwargs['metadata'] = {**metadata, **supplied_metadata}
             dset_opts = self.load_function(**kwargs)
             dset = Dataset(**dset_opts)
-            dset.dump(data_path=cache_path, file_base=meta_hash)
+            dset.dump(dump_path=cache_path, file_base=meta_hash)
 
         if return_X_y:
             return dset.data, dset.target
