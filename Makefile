@@ -25,21 +25,23 @@ else
 	pip install -r requirements.txt
 endif
 
-## Perform the complete dataset generation pipeline
-data: requirements process_data
+## convert raw datasets into fully processed datasets
+data: raw_data process_data
 
-## Fetch the data
-fetch_data:
+## Fetch, Unpack, and Process raw dataset files
+raw_data: requirements process_raw
+
+fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
 
-## Unpack the data
-unpack_data: fetch_data
+unpack_raw: fetch_raw
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
 
-## Fetch and process the data
-process_data: unpack_data
+process_raw: unpack_raw
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
+process_data:
+	$(PYTHON_INTERPRETER) -m src.data.apply_transforms datasets.json
 ## train / fit / build models
 train: models/model_list.json
 	$(PYTHON_INTERPRETER) -m src.models.train_model model_list.json
