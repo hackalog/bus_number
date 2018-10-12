@@ -4,7 +4,7 @@ import os
 import pathlib
 import time
 
-from ..data import Dataset, datasets
+from ..data import Dataset
 from ..logging import logger
 from ..paths import model_output_path
 from ..utils import record_time_interval
@@ -13,14 +13,16 @@ from .train import load_model
 __all__ = ['run_model']
 
 
-def run_model(dataset_params=None,
-              run_number=0,
-              experiment_info=None,
-              output_path=None,
-              hash_type='sha1',
+def run_model(experiment_info=None,
               file_base=None,
-              force=False, *,
-              dataset_name, model_name, is_supervised):
+              force=False,
+              hash_type='sha1',
+              output_path=None,
+              run_number=0,
+              *,
+              dataset_name,
+              is_supervised,
+              model_name):
     '''Run a model on a dataset (predict/transform)
 
     Runs an algorithm_object on the dataset and returns a new
@@ -31,8 +33,6 @@ def run_model(dataset_params=None,
     ----------
     dataset_name: str, valid dataset name
         Name of a dataset object that will be run through the model
-    dataset_params: dict
-        Options to be passed when creating/loading the dataset
     model_name: str, valid model name
         name of the model that will transform the data
     experiment_info: (str)
@@ -60,12 +60,9 @@ def run_model(dataset_params=None,
     if file_base is None:
         file_base = f'{model_name}_exp_{dataset_name}_{run_number}'
 
-    if dataset_params is None:
-        dataset_params = {}
-
     os.makedirs(output_path, exist_ok=True)
 
-    dataset = datasets.load_dataset(dataset_name, **dataset_params)
+    dataset = Dataset.load(dataset_name)
 
     model, model_meta = load_model(model_name)
 
@@ -73,14 +70,13 @@ def run_model(dataset_params=None,
     experiment = {
         'model_name': model_name,
         'dataset_name': dataset_name,
-        'dataset_params': dataset_params,
         'run_number': run_number,
         'hash_type': hash_type,
         'data_hash': joblib.hash(dataset.data, hash_name=hash_type),
         'target_hash': joblib.hash(dataset.target, hash_name=hash_type),
         'model_hash': joblib.hash(model, hash_name=hash_type),
     }
-
+    logger.debug(f"Predict: Applying {model_name} on {dataset_name}")
     metadata_fq = output_path / f'{file_base}.metadata'
 
     if metadata_fq.exists() and force is False:
@@ -117,7 +113,7 @@ def run_model(dataset_params=None,
     new_dataset = Dataset(dataset_name=file_base, data=exp_data,
                           target=dataset.target, metadata=new_metadata,
                           descr_txt=experiment_info)
-    new_dataset.dump(file_base=file_base, data_path=output_path, force=True)
+    new_dataset.dump(file_base=file_base, dump_path=output_path, force=True)
     return new_dataset
 
 
@@ -150,6 +146,6 @@ def load_prediction(predict_name=None, metadata_only=False, predict_path=None):
 
     fq_predict = predict_path / f'{predict_name}'
 
-    predict = Dataset.load(fq_predict, metadata_only=metadata_only)
+    predict = Dataset.load(fq_predict, data_path=predict_path, metadata_only=metadata_only)
 
     return predict
