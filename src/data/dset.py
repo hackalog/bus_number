@@ -4,6 +4,7 @@ import sys
 
 import joblib
 from sklearn.datasets.base import Bunch
+from sklearn.model_selection import train_test_split
 from functools import partial
 
 from ..paths import processed_data_path, data_path, raw_data_path, interim_data_path
@@ -129,6 +130,10 @@ class Dataset(Bunch):
             ds = joblib.load(fd)
         return ds
 
+    def __hash__(self):
+        _hash = joblib.hash(self)
+        return hash(_hash)
+
     def get_data_hashes(self, exclude_list=None, hash_type='sha1'):
         """Compute a the hash of data items
 
@@ -148,6 +153,39 @@ class Dataset(Bunch):
                 continue
             ret[f"{key}_hash"] = joblib.hash(value, hash_name=hash_type)
         return ret
+
+    def split(self, random_state=6502, **kwargs):
+        """Perform train/test split
+
+        Parameters
+        ----------
+        random_state: int
+            seed used to make train/test split reproducible
+        **kwargs:
+            remaining kwargs are passed to sklearn.model_selection.train_test_split
+
+        Returns
+        -------
+        Tuple:
+            (train_dataset, test_dataset)
+        where both datasets have identical metadata, except that
+        dataset name has been modified to {dataset_name}_{kind}, and the random_seed
+        used to split has been recorded metadata['split_random_state']
+        """
+        if self.data is None:
+            raise Exception("Cannot split empty Dataset")
+
+        train = Dataset(dataset_name=f"{self.name}_train", metadata=self.metadata.copy())
+        train.metadata['split_random_state'] = random_state
+        test = Dataset(dataset_name=f"{self.name}_test", metadata=self.metadata.copy())
+        test.metadata['split_random_state'] = random_state
+
+        X_train, X_test, y_train, y_test = train_test_split(
+            self.data, self.target, random_state=random_state, **kwargs)
+        train.data, train.target = X_train, y_train
+        test.data, test.target = X_test, y_test
+
+        return train, test
 
     def dump(self, file_base=None, data_path=None, hash_type='sha1',
              force=True, create_dirs=True, dump_metadata=True):
