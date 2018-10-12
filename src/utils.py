@@ -59,3 +59,31 @@ def load_json(filename):
     with open(filename) as fw:
         obj = json.load(fw)
     return obj
+
+def head_file(filename, n=5):
+    """Return the first `n` lines of a file
+    """
+    with open(filename, 'r') as fd:
+        lines = []
+        for i, line in enumerate(fd):
+            if i > n:
+                break
+            lines.append(line)
+    return "".join(lines)
+
+def list_dir(path, fully_qualified=False, glob_pattern='*'):
+    """do an ls on a path
+
+    fully_qualified: boolean (default: False)
+        If True, return a list of fully qualified pathlib objects.
+        if False, return just the bare filenames
+    glob_pattern: glob (default: '*')
+        File mattern to match
+
+    Returns
+    -------
+    A list of names, or fully qualified pathlib objects"""
+    if fully_qualified:
+        return list(pathlib.Path(path).glob(glob_pattern))
+
+    return [file.name for file in pathlib.Path(path).glob(glob_pattern)]
