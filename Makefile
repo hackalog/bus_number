@@ -34,10 +34,10 @@ raw_data: requirements process_raw
 fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
 
-unpack_raw: fetch_raw
+unpack_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
 
-process_raw: unpack_raw
+process_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 process_data:
