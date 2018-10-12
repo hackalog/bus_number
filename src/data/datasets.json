@@ -11,7 +11,7 @@
       [
         "train_test_split",
         {
-          "random_seed": 6502,
+          "random_state": 6502,
           "test_size": 0.2
         }
       ]

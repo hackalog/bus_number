@@ -319,7 +319,7 @@ class Dataset(Bunch):
         if dump_metadata:
             with open(metadata_fq, 'wb') as fo:
                 joblib.dump(metadata, fo)
-            logger.debug(f'Wrote Dataset Metadate: {metadata_filename}')
+            logger.debug(f'Wrote Dataset Metadata: {metadata_filename}')
 
         dataset_fq = dump_path / dataset_filename
         with open(dataset_fq, 'wb') as fo:
