@@ -16,12 +16,27 @@ from ..utils import load_json, save_json
 __all__ = [
     'Dataset',
     'RawDataset',
+    'available_datasets',
     'add_raw_dataset',
     'available_raw_datasets',
 ]
 
 _MODULE = sys.modules[__name__]
 _MODULE_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
+
+def available_datasets(dataset_path=None):
+    if dataset_path is None:
+        dataset_path = processed_data_path
+    else:
+        dataset_path = pathlib.Path(dataset_path)
+
+    ds_dict = {}
+    for dsfile in dataset_path.glob("*.metadata"):
+        ds_stem = str(dsfile.stem)
+        ds_meta = Dataset.load(ds_stem, data_path=dataset_path, metadata_only=True)
+        ds_dict[ds_stem] = ds_meta
+
+    return ds_dict
 
 
 def add_raw_dataset(rawds):
