@@ -648,6 +648,31 @@ class RawDataset(object):
         return obj_dict
 
     @classmethod
+    def from_name(cls, raw_dataset_name,
+                  raw_dataset_file='raw_datasets.json',
+                  raw_dataset_path=None):
+        """Create a RawDataset from a dictionary key name.
+
+        The `raw_dataset_file` is a json file mapping raw_dataset_name
+        to its dictionary representation.
+
+        Parameters
+        ----------
+        raw_dataset_name: str
+            Name of raw dataset. Used as the key in the on-disk key_file
+        key_file_path:
+            Location of key_file (json dict containing raw dataset defintion)
+            if None, use source code module: src/data/{key_file_name}
+        key_file_name:
+            Name of json file containing key/dict map
+
+        """
+        raw_datasets, _ = available_raw_datasets(raw_dataset_file=raw_dataset_file,
+                                                 raw_dataset_path=raw_dataset_path,
+                                                 keys_only=False)
+        return cls.from_dict(raw_datasets[raw_dataset_name])
+
+    @classmethod
     def from_dict(cls, obj_dict):
         """Create a RawDataset from a dictionary.
 
