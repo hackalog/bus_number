@@ -88,7 +88,7 @@ def main(model_list, *, output_file, hash_type):
             trained_model, added_metadata = train_model(hash_type=hash_type,
                                                         **td)
             # replace specified params with full set of params used
-            # td['algorithm_params'] = dict(trained_model.get_params())
+            td['algorithm_params'] = dict(trained_model.get_params())
             new_metdata = {**td, **added_metadata}
             saved_meta[model_key] = save_model(model_name=model_key,
                                                model=trained_model,

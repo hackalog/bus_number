@@ -1,5 +1,3 @@
-import sklearn
-
 _ALGORITHMS = {
 }
 
@@ -20,5 +18,5 @@ def available_algorithms():
 
     ============     ====================================
     """
-    return list(_ALGORITHMS.keys())
+    return _ALGORITHMS
 
