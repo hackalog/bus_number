@@ -153,3 +153,24 @@ def process_yelp(dataset_name='yelp', metadata=None, num_reviews=100000, filenam
         'metadata': metadata
     }
     return dset_opts
+
+__all__ += ['process_fremont_bike']
+def process_fremont_bike(dataset_name="fremont_bike", metadata=None):
+    """ """
+    if metadata is None:
+        metadata = {}
+    data = pd.read_csv(interim_data_path / dataset_name / 'fremont.csv', index_col='Date')
+
+    try:
+        data.index = pd.to_datetime(data.index, format='%m/%d/%Y %I:%M:%S %p')
+    except TypeError:
+        data.index = pd.to_datetime(data.index)
+    data.columns = ['West', 'East']
+    data['Total'] = data['West'] + data['East']
+
+    return {
+        "dataset_name":dataset_name,
+        "metadata": metadata,
+        "data":data,
+        "target":None
+    }
