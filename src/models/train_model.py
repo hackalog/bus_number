@@ -9,7 +9,7 @@ from ..logging import logger
 from ..utils import save_json
 from ..paths import model_path, trained_model_path
 from .train import train_model, save_model
-from ..data.datasets import available_datasets
+from ..data import available_datasets
 from .algorithms import available_algorithms
 
 
@@ -55,7 +55,7 @@ def main(model_list, *, output_file, hash_type):
 
 
     """
-    logger.info(f'Building models from {model_list}')
+    logger.debug(f'Building models from {model_list}')
 
     os.makedirs(trained_model_path, exist_ok=True)
 
@@ -96,9 +96,10 @@ def main(model_list, *, output_file, hash_type):
 
     logger.debug(f"output dir: {model_path}")
     logger.debug(f"output filename: {output_file}")
-    save_json(model_path / output_file, saved_meta)
-    logger.info("Training complete! Saved metdata to " +
-                f"{model_path / output_file}")
+    if saved_meta:
+        save_json(model_path / output_file, saved_meta)
+        logger.info("Training complete! Saved metdata to " +
+                    f"{output_file}")
 
 if __name__ == '__main__':
 

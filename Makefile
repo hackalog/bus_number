@@ -26,10 +26,10 @@ else
 endif
 
 ## convert raw datasets into fully processed datasets
-data: raw_data process_data
+data: raw_data transform_data
 
 ## Fetch, Unpack, and Process raw dataset files
-raw_data: requirements process_raw
+raw: requirements process_raw
 
 fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
@@ -40,8 +40,10 @@ unpack_raw:
 process_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
-process_data:
-	$(PYTHON_INTERPRETER) -m src.data.apply_transforms datasets.json
+## Apply Transformations to produce fully processed Datsets
+transform_datasets:
+	$(PYTHON_INTERPRETER) -m src.data.apply_transforms transformer_list.json
+
 ## train / fit / build models
 train: models/model_list.json
 	$(PYTHON_INTERPRETER) -m src.models.train_model model_list.json

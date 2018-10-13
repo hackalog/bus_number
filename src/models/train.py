@@ -4,7 +4,7 @@ import pathlib
 
 from ..paths import trained_model_path
 from ..utils import save_json
-from ..data.datasets import load_dataset
+from ..data import Dataset
 from .algorithms import available_algorithms
 
 __all__ = [
@@ -14,13 +14,13 @@ __all__ = [
 ]
 
 
-def train_model(dataset_params=None, algorithm_params=None,
+def train_model(algorithm_params=None,
                 run_number=0, *, dataset_name, algorithm_name, hash_type,
                 **kwargs):
     """Train a model using the specified algorithm using the given
     dataset."""
     metadata = {}
-    ds = load_dataset(dataset_name, **dataset_params)
+    ds = Dataset.load(dataset_name)
     metadata['data_hash'] = joblib.hash(ds.data, hash_name=hash_type)
     metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
     model = available_algorithms()[algorithm_name]

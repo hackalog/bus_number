@@ -14,7 +14,7 @@ from . import run_model
 @click.option('--output_file', '-o', nargs=1, type=str, default='predictions.json')
 @click.option('--hash-type', '-H', type=click.Choice(['md5', 'sha1']), default='sha1')
 def main(model_list, *, output_file, hash_type):
-    logger.info(f'Executing models from {model_list}')
+    logger.debug(f'Executing models from {model_list}')
 
     os.makedirs(model_output_path, exist_ok=True)
 
@@ -30,8 +30,9 @@ def main(model_list, *, output_file, hash_type):
             metadata[key] = ds.metadata[key]
             saved_meta[name] = metadata
 
-    save_json(model_path / output_file, saved_meta)
-    logger.info(f"Predict complete! Results in {model_path / output_file}")
+    if saved_meta:
+        save_json(model_path / output_file, saved_meta)
+        logger.info(f"Predict complete! Results in {output_file}")
     
 if __name__ == '__main__':
 

@@ -16,12 +16,27 @@ from ..utils import load_json, save_json
 __all__ = [
     'Dataset',
     'RawDataset',
+    'available_datasets',
     'add_raw_dataset',
     'available_raw_datasets',
 ]
 
 _MODULE = sys.modules[__name__]
 _MODULE_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
+
+def available_datasets(dataset_path=None):
+    if dataset_path is None:
+        dataset_path = processed_data_path
+    else:
+        dataset_path = pathlib.Path(dataset_path)
+
+    ds_dict = {}
+    for dsfile in dataset_path.glob("*.metadata"):
+        ds_stem = str(dsfile.stem)
+        ds_meta = Dataset.load(ds_stem, data_path=dataset_path, metadata_only=True)
+        ds_dict[ds_stem] = ds_meta
+
+    return ds_dict
 
 
 def add_raw_dataset(rawds):
@@ -66,7 +81,7 @@ def available_raw_datasets(raw_dataset_file='raw_datasets.json',
 
 
 class Dataset(Bunch):
-    def __init__(self, dataset_name=None, data=None, target=None, metadata=None,
+    def __init__(self, dataset_name=None, data=None, target=None, metadata=None, update_hashes=True,
                  **kwargs):
         """
         Object representing a dataset object.
@@ -81,6 +96,8 @@ class Dataset(Bunch):
             in `data`
         metadata: dict
             Data about the object. Key fields include `license_txt` and `descr`
+        update_hashes:
+            If True, update the data/target hashes in the Metadata.
         """
         super().__init__(**kwargs)
 
@@ -97,6 +114,9 @@ class Dataset(Bunch):
         self['metadata']['dataset_name'] = dataset_name
         self['data'] = data
         self['target'] = target
+        if update_hashes:
+            data_hashes = self.get_data_hashes()
+            self['metadata'] = {**self['metadata'], **data_hashes}
 
     def __getattribute__(self, key):
         if key.isupper():

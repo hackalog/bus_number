@@ -20,9 +20,7 @@ def available_transformers():
     train_test_split    train_test_split_xform
     ============        ====================================
     """
-    return {
-        "train_test_split": split_dataset_test_train
-    }
+    return _TRANSFORMERS
 
 def split_dataset_test_train(dset,
                              dump_path=None, dump_metadata=True,
@@ -67,3 +65,48 @@ def split_dataset_test_train(dset,
     logger.info(f"Writing Transformed Dataset: {new_ds['test'].name}")
     new_ds['test'].dump(force=force, dump_path=dump_path, dump_metadata=dump_metadata, create_dirs=create_dirs)
     return dset
+
+def datetime_pivot(dset, **pivot_opts):
+    """Pivot data that is indexed by datatime stamps
+
+    Assumes data is a pandas dataframe, index is a datetime.
+
+
+    pivot_opts:
+        keyword arguments passed to pandas.Dataframe.pivot_table
+    """
+    pivoted = dset.data.pivot_table(index=dset.data.index.time, columns=dset.data.index.date, **pivot_opts)
+    ds_pivot = Dataset(name=f"{dset.name}_pivoted", metadata=dset.metadata, data=pivoted, target=None)
+    ds_pivot.metadata['pivot_opts'] = pivot_opts
+
+    return ds_pivot
+
+# A transformer takes a dataset and returns a dataset
+def pivot(dset, **pivot_opts):
+    """Pivot data stored as a Pandas Dataframe
+
+    pivot_opts:
+        keyword arguments passed to pandas.Dataframe.pivot_table
+    """
+    pivoted = dset.data.pivot_table(**pivot_opts)
+    ds_pivot = Dataset(name=f"{dset.name}_pivoted", metadata=dset.metadata, data=pivoted, target=None)
+    ds_pivot.metadata['pivot_opts'] = pivot_opts
+
+    return ds_pivot
+
+def index_to_date_time(dset, suffix='dt'):
+    """Transformer: Extract a datetime index into Date and Time columns"""
+    df = dset.data.copy()
+    df['Time']=df.index.time
+    df['Date']=df.index.date
+    df.reset_index(inplace=True, drop=True)
+    new_ds = Dataset(dataset_name=f"{dset.name}_{suffix}", metadata=dset.metadata, data=df)
+    return new_ds
+
+
+_TRANSFORMERS = {
+    "datetime_pivot": datetime_pivot,
+    "index_to_date_time": index_to_date_time,
+    "pivot": pivot,
+    "train_test_split": split_dataset_test_train,
+}

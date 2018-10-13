@@ -1,4 +1,33 @@
 {
+  "fremont_bike": {
+    "dataset_dir": "/Users/kjell/Documents/devel/git/bus_number/data/raw",
+    "load_function_args": [],
+    "load_function_kwargs": {},
+    "load_function_module": "src.data.localdata",
+    "load_function_name": "process_fremont_bike",
+    "name": "fremont_bike",
+    "url_list": [
+      {
+        "file_name": "fremont.csv",
+        "hash_type": "sha1",
+        "hash_value": "1f4226ac7445d955ea1e5bad469be07bafb5c511",
+        "name": null,
+        "url": "https://data.seattle.gov/api/views/65db-xm6k/rows.csv?accessType=DOWNLOAD"
+      },
+      {
+        "contents": "Public Domain",
+        "file_name": "fremont_bike.license",
+        "hash_value": "b95d961276d9e9809aec43b99dd04ac1d017c6fc",
+        "name": "LICENSE"
+      },
+      {
+        "contents": "\nFremont Bridge Hourly Bicycle Counts by Month October 2012 to present\n\nThe Dataset is provided by the Seattle Department of Transportation Open Data initiative and is available from:\nhttps://data.seattle.gov/Transportation/Fremont-Bridge-Hourly-Bicycle-Counts-by-Month-Octo/65db-xm6k\n\nDescription\n-----------\nThe Fremont Bridge Bicycle Counter records the number of bikes that cross the bridge using the \npedestrian/bicycle pathways. Inductive loops on the east and west pathways count the passing of bicycles \nregardless of travel direction. The data consists of a date/time field: Date, east pathway count field: \nFremont Bridge NB, and west pathway count field: Fremont Bridge SB. The count fields represent the \ntotal bicycles detected during the specified one hour period. Direction of travel is not specified, \nbut in general most traffic in the Fremont Bridge NB field is travelling northbound and most traffic in\nthe Fremont Bridge SB field is travelling southbound.\n\nData Format\n-----------\nThe Dataset consists of a csv file with three columns:\n  Date, Fremont Bridge East Sidewalk, Fremont Bridge West Sidewalk\nData consist of counts (in each direction) grouped by hour.\n\n",
+        "file_name": "fremont_bike.readme",
+        "hash_value": "4f18f5ff4f45776986f865897db6c7fab5ceed2d",
+        "name": "DESCR"
+      }
+    ]
+  },
   "lvq-pak": {
     "dataset_dir": "/home/ava00088/src/devel/bus_number/data/raw",
     "load_function_args": [],

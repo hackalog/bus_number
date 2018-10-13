@@ -88,7 +88,7 @@ def partial_call_signature(func):
 
 def process_dataset_default(**kwargs):
     """Placeholder for data processing function"""
-    logger.warning(f"No Processing function defined")
+    logger.warning(f"Default `load_function` method. No `data` or `target` generated")
     return kwargs
 
 def deserialize_partial(func_dict, delete_keys=False):
