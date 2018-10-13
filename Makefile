@@ -29,7 +29,7 @@ endif
 data: raw_data transform_data
 
 ## Fetch, Unpack, and Process raw dataset files
-raw: requirements process_raw
+raw_data: requirements process_raw
 
 fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
@@ -41,7 +41,7 @@ process_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 ## Apply Transformations to produce fully processed Datsets
-transform_datasets:
+transform_data:
 	$(PYTHON_INTERPRETER) -m src.data.apply_transforms transformer_list.json
 
 ## train / fit / build models
