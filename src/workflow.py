@@ -12,7 +12,11 @@ Experiments: make predict
 '''
 from .data.transformers import available_transformers
 from .models import available_algorithms
-from .models.model_list import get_model_list, add_model, del_model, build_models, available_trained_models
+from .models.model_list import (get_model_list, add_model, del_model, build_models,
+                                available_models)
+
+from .models.predict import (add_prediction, get_prediction_list,
+                             del_prediction, run_predictions, available_predictions)
 from .data import (Dataset, RawDataset, available_datasets, available_raw_datasets, add_raw_dataset)
 from .data.transform_data import get_transformer_list, add_transformer, del_transformer, apply_transforms
 
@@ -29,5 +33,10 @@ __all__ = [
     'get_model_list',
     'add_model',
     'del_model',
-    'available_trained_models'
+    'available_models',
+    'add_prediction',
+    'get_prediction_list',
+    'del_prediction',
+    'run_predictions',
+    'available_predictions',
 ]

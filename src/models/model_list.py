@@ -12,7 +12,7 @@ __all__ =[
     'del_model',
     'add_model',
     'build_models',
-    'available_trained_models'
+    'available_models',
 ]
 
 def get_model_list(model_dir=None, model_file=None, include_filename=False):
@@ -185,23 +185,23 @@ def build_models(model_file='model_list.json', model_dir=None, hash_type='sha1')
 
     return saved_meta
 
-def available_trained_models(trained_model_dir=None, keys_only=True):
+def available_models(models_dir=None, keys_only=True):
     """Get a list of trained models.
 
     Parameters
     ----------
-    trained_model_dir: path
+    models_dir: path
         location of saved dataset files
     """
-    if trained_model_dir is None:
-        trained_model_dir = trained_model_path
+    if models_dir is None:
+        models_dir = trained_model_path
     else:
-        trained_model_dir = pathlib.Path(trained_model_dir)
+        models_dir = pathlib.Path(models_dir)
 
     model_dict = {}
-    for modelfile in trained_model_dir.glob("*.metadata"):
+    for modelfile in models_dir.glob("*.metadata"):
         model_stem = str(modelfile.stem)
-        model_meta = load_model(model_name=model_stem, model_path=trained_model_dir, metadata_only=True)
+        model_meta = load_model(model_name=model_stem, model_path=models_dir, metadata_only=True)
         model_dict[model_stem] = model_meta
 
     if keys_only:
