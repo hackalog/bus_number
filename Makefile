@@ -29,7 +29,7 @@ endif
 data: raw transform_data
 
 ## Fetch, Unpack, and Process raw dataset files
-raw: requirements process_raw
+raw_data: requirements process_raw
 
 fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
