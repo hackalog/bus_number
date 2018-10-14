@@ -26,7 +26,7 @@ else
 endif
 
 ## convert raw datasets into fully processed datasets
-data: raw_data transform_data
+data: raw transform_data
 
 ## Fetch, Unpack, and Process raw dataset files
 raw: requirements process_raw
