@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "algorithm_name": "linearSVC",
+    "algorithm_params": {
+      "max_iter": 200000,
+      "random_state": 42
+    },
+    "dataset_name": "lvq-pak_train",
+    "run_number": 1
+  }
+]

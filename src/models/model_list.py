@@ -72,7 +72,7 @@ def add_model(dataset_name=None,
               algorithm_name=None,
               algorithm_params=None,
               model_dir=None, model_file=None,
-              run_number=1):
+              run_number=1, force=False):
     """Create and add a dataset transformation pipeline to the workflow.
 
     Model pipelines apply a sequence of model functions to a Dataset (or RawDataset),
@@ -86,6 +86,8 @@ def add_model(dataset_name=None,
         Name of an algorithm (estimator) given in `available_algorithms()`
     algorithm_params: dict
         Dictionary of options to pass to `algorithm_name`
+    force: boolean, default False
+        If an identical entry already exists, force it to be added.
     run_numner: int
         A unique integer used to distinguish between different builds with
         otherwise identical parameters
@@ -109,8 +111,11 @@ def add_model(dataset_name=None,
         'algorithm_params': algorithm_params,
         'run_number': run_number
     }
-
-    model_list.append(model)
+    if (model in model_list) and not force:
+        logger.warning(f"model: {model} is already in the model list." +
+                       "Skipping. To force an addition, set force=True")
+    else:
+        model_list.append(model)
     save_json(model_file_fq, model_list)
 
 def build_models(model_file='model_list.json', model_dir=None, hash_type='sha1'):

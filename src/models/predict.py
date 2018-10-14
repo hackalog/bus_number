@@ -6,8 +6,8 @@ import time
 
 from ..data import Dataset
 from ..logging import logger
-from ..paths import model_output_path
-from ..utils import record_time_interval
+from ..paths import model_path, model_output_path
+from ..utils import record_time_interval, save_json
 from .train import load_model
 from .model_list import get_model_list
 from ..data import available_datasets
@@ -26,7 +26,7 @@ def run_model(experiment_info=None,
               force=False,
               hash_type='sha1',
               output_path=None,
-              run_number=0,
+              run_number=1,
               *,
               dataset_name,
               is_supervised,
@@ -94,7 +94,7 @@ def run_model(experiment_info=None,
             logger.info("Experiment has already been run. Returning Cached Result")
             return Dataset.load(file_base, data_path=output_path)
         else:
-            raise Exception(f'An Experiment with this name exists already, '
+            raise Exception(f'An Experiment with name {file_base} exists already, '
                             'but metadata has changed. '
                             'Use `force=True` to overwrite, or change one of '
                             '`run_number` or `file_base`')
@@ -227,7 +227,9 @@ def del_prediction(index, model_dir=None, prediction_file=None):
 def add_prediction(dataset_name=None,
                    model_name=None,
                    model_dir=None, model_file='predict_list.json',
-                   is_supervised=True):
+                   is_supervised=True,
+                   force=False,
+                   force_predict=False):
     """Create and add a prediction (experiment) to the prediction list.
 
     Predictions involve passing a Dataset through a (trained) model
@@ -246,6 +248,10 @@ def add_prediction(dataset_name=None,
         Location of `model_file`
     model_file: string, default 'model_list.json'
         Name of json file that contains the model pipeline
+    force: boolean, default False
+        Force the addition of a prediction to the predict list
+    force_predict: boolean, default False
+        force_predict to force a prediction to happen.
     """
     if model_dir is None:
         model_dir = model_path
@@ -261,9 +267,14 @@ def add_prediction(dataset_name=None,
         'dataset_name': dataset_name,
         'model_name': model_name,
         'is_supervised': is_supervised,
+        'force': force_predict
     }
+    if (prediction in model_list) and not force:
+        logger.warning(f"prediction: {prediction} is already in the prediction list. " +
+                       "Skipping. To force an addition, set force=True")
+    else:
+        model_list.append(prediction)
 
-    model_list.append(prediction)
     save_json(model_file_fq, model_list)
 
 def available_predictions(models_dir=None, keys_only=True):
