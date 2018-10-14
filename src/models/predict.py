@@ -9,9 +9,17 @@ from ..logging import logger
 from ..paths import model_output_path
 from ..utils import record_time_interval
 from .train import load_model
+from .model_list import get_model_list
+from ..data import available_datasets
 
-__all__ = ['run_model']
-
+__all__ = [
+    'run_model',
+    'run_predictions',
+    'add_prediction',
+    'get_prediction_list',
+    'del_prediction',
+    'available_predictions',
+]
 
 def run_model(experiment_info=None,
               file_base=None,
@@ -149,3 +157,123 @@ def load_prediction(predict_name=None, metadata_only=False, predict_path=None):
     predict = Dataset.load(fq_predict, data_path=predict_path, metadata_only=metadata_only)
 
     return predict
+
+def run_predictions(*, predict_file, predict_dir=None):
+    """
+    """
+    if predict_dir is None:
+        predict_dir = model_path
+    else:
+        predict_dir = pathlib.Path(predict_dir)
+
+    predict_list = get_prediction_list(model_dir=predict_dir, prediction_file=predict_file)
+
+    saved_meta = {}
+    metadata_keys = ['dataset_name', 'hash_type', 'data_hash', 'target_hash', 'experiment']
+    for exp in predict_list:
+        ds = run_model(**exp)
+        name = ds.metadata['dataset_name']
+        metadata = {}
+        for key in metadata_keys:
+            metadata[key] = ds.metadata[key]
+            saved_meta[name] = metadata
+
+    return saved_meta
+
+def get_prediction_list(model_dir=None, prediction_file=None, include_filename=False):
+    """Get the list of prediction pipelines
+
+    Returns
+    -------
+    If include_filename is True:
+        A tuple: (model_list, model_file_fq)
+    else:
+        model_list
+
+    Parameters
+    ----------
+    include_filename: boolean
+        if True, returns a tuple: (list, filename)
+    model_dir: path. (default: MODULE_DIR)
+        Location of `model_file`
+    prediction_file: string, default 'predict_list.json'
+        Name of json file that contains the prediction pipeline
+    """
+    if model_dir is None:
+        model_dir = model_path
+    else:
+        model_dir = pathlib.Path(model_dir)
+
+    if prediction_file is None:
+        prediction_file = 'predict_list.json'
+
+    return get_model_list(model_dir=model_dir, model_file=prediction_file, include_filename=include_filename)
+
+def del_prediction(index, model_dir=None, prediction_file=None):
+    """Delete an entry in the predict list
+
+    index: index of entry
+    model_dir: path. (default: MODULE_DIR)
+        Location of `model_file`
+    prediction_file: string, default 'model_list.json'
+        Name of json file that contains the model pipeline
+    """
+    predict_list, predict_file_fq = get_prediction_list(model_dir=model_dir,
+                                                        prediction_file=prediction_file,
+                                                        include_filename=True)
+    del(predict_list[index])
+    save_json(predict_file_fq, predict_list)
+
+def add_prediction(dataset_name=None,
+                   model_name=None,
+                   model_dir=None, model_file='predict_list.json',
+                   is_supervised=True):
+    """Create and add a prediction (experiment) to the prediction list.
+
+    Predictions involve passing a Dataset through a (trained) model
+    producing a new Dataset.
+
+    Parameters
+    ----------
+    dataset_name: string
+        Name of dataset to train the model on
+    model_name: string
+        Name of an model to use, given by `available_models()`
+    is_supervised: boolean
+        if True, the algorithm's `predict()` method will be used to obtain the output.
+        If False, the algorithm's `transform()` method will be used instead
+    model_dir: path. (default: MODULE_DIR/data)
+        Location of `model_file`
+    model_file: string, default 'model_list.json'
+        Name of json file that contains the model pipeline
+    """
+    if model_dir is None:
+        model_dir = model_path
+
+    model_list, model_file_fq = get_model_list(model_dir=model_dir,
+                                               model_file=model_file,
+                                               include_filename=True)
+
+    if dataset_name is None or model_name is None:
+        raise Exception
+
+    prediction = {
+        'dataset_name': dataset_name,
+        'model_name': model_name,
+        'is_supervised': is_supervised,
+    }
+
+    model_list.append(prediction)
+    save_json(model_file_fq, model_list)
+
+def available_predictions(models_dir=None, keys_only=True):
+    """Get a list of prediction datasets.
+
+    Parameters
+    ----------
+    models_dir: path
+        location of saved prediction files
+    """
+    if models_dir is None:
+        models_dir = model_output_path
+    return available_datasets(dataset_path=models_dir, keys_only=keys_only)

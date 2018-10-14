@@ -1,29 +1,32 @@
 import json
 import joblib
 import pathlib
+import logging
 
-from ..paths import trained_model_path
-from ..utils import save_json
-from ..data import Dataset
+from .. import paths
+from ..paths import trained_model_path, model_path
+from ..utils import save_json, load_json
+from ..data import Dataset, available_datasets
 from .algorithms import available_algorithms
+from ..logging import logger
 
 __all__ = [
     'load_model',
     'save_model',
-    'train_model'
+    'train_model',
 ]
-
 
 def train_model(algorithm_params=None,
                 run_number=0, *, dataset_name, algorithm_name, hash_type,
                 **kwargs):
-    """Train a model using the specified algorithm using the given
-    dataset."""
+    """Train a model using the specified algorithm using the given dataset.
+
+    """
     metadata = {}
     ds = Dataset.load(dataset_name)
     metadata['data_hash'] = joblib.hash(ds.data, hash_name=hash_type)
     metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
-    model = available_algorithms()[algorithm_name]
+    model = available_algorithms(keys_only=False)[algorithm_name]
     model.set_params(**algorithm_params)
     model.fit(ds.data, y=ds.target)
     return model, metadata

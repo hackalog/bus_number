@@ -1,7 +1,6 @@
-_ALGORITHMS = {
-}
+from sklearn.svm import LinearSVC
 
-def available_algorithms():
+def available_algorithms(keys_only=True):
     """Valid Algorithms for training or prediction
 
     This function simply returns a dict of known
@@ -15,8 +14,17 @@ def available_algorithms():
     ============     ====================================
     Algorithm        Function
     ============     ====================================
-
+    linearSVC        sklearn.svm.LinearSVC
     ============     ====================================
-    """
-    return _ALGORITHMS
 
+    Parameters
+    ----------
+    keys_only: boolean
+        If True, return only keys. Otherwise, return a dictionary mapping keys to algorithms
+    """
+    _ALGORITHMS = {
+        'linearSVC': LinearSVC()
+    }
+    if keys_only:
+        return list(_ALGORITHMS.keys())
+    return _ALGORITHMS
