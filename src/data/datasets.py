@@ -16,15 +16,22 @@ from ..utils import load_json, save_json
 __all__ = [
     'Dataset',
     'RawDataset',
-    'available_datasets',
     'add_raw_dataset',
+    'available_datasets',
     'available_raw_datasets',
 ]
 
 _MODULE = sys.modules[__name__]
 _MODULE_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 
-def available_datasets(dataset_path=None):
+def available_datasets(dataset_path=None, keys_only=True):
+    """Get a list of available datasets.
+
+    Parameters
+    ----------
+    dataset_path: path
+        location of saved dataset files
+    """
     if dataset_path is None:
         dataset_path = processed_data_path
     else:
@@ -36,11 +43,13 @@ def available_datasets(dataset_path=None):
         ds_meta = Dataset.load(ds_stem, data_path=dataset_path, metadata_only=True)
         ds_dict[ds_stem] = ds_meta
 
+    if keys_only:
+        return list(ds_dict.keys())
     return ds_dict
 
 
 def add_raw_dataset(rawds):
-    """Add a raw dataset to the list of available datasets"""
+    """Add a raw dataset to the list of available raw datasets"""
 
     rawds_list, rds_file_fq = available_raw_datasets(keys_only=False)
     rawds_list[rawds.name] = rawds.to_dict()
@@ -50,7 +59,7 @@ def available_raw_datasets(raw_dataset_file='raw_datasets.json',
                            raw_dataset_path=None, keys_only=True):
     """Returns the list of available datasets.
 
-    Instructions for creating RawDatasets is stored in `datasets.json` by default.
+    Instructions for creating RawDatasets is stored in `raw_datasets.json` by default.
 
     keys_only: boolean
         if True, return a list of available datasets (default)
