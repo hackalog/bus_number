@@ -7,7 +7,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 
 
-def available_algorithms():
+def available_algorithms(keys_only=True):
     """Valid Algorithms for training or prediction
 
     This function simply returns a dict of known
@@ -18,13 +18,21 @@ def available_algorithms():
 
     The valid algorithm names, and the function they map to, are:
 
+
     ============                 ====================================
     Algorithm                    Function
     ============                 ====================================
     LinearSVC                    sklearn.svm.LinearSVC
     GradientBoostingClassifier   sklearn.ensemble.GradientBoostingClassifier
     ============                 ====================================
+
+    Parameters
+    ----------
+    keys_only: boolean
+        If True, return only keys. Otherwise, return a dictionary mapping keys to algorithms
     """
+    if keys_only:
+        return list(_ALGORITHMS.keys())
     return _ALGORITHMS
 
 

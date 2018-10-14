@@ -8,10 +8,7 @@ from dotenv import find_dotenv, load_dotenv
 from ..logging import logger
 from ..utils import save_json
 from ..paths import model_path, trained_model_path
-from .train import train_model, save_model
-from ..data import available_datasets
-from .algorithms import available_algorithms
-
+from .model_list import build_models
 
 @click.command()
 @click.argument('model_list')
@@ -59,40 +56,7 @@ def main(model_list, *, output_file, hash_type):
 
     os.makedirs(trained_model_path, exist_ok=True)
 
-    with open(model_path / model_list) as f:
-        training_dicts = json.load(f)
-
-    dataset_list = available_datasets()
-    algorithm_list = available_algorithms()
-
-    metadata_dict = {}  # Used to ensure uniqueness of keys
-    for td in training_dicts:
-        ds_name = td.get('dataset_name', None)
-        assert ds_name in dataset_list, f'Unknown Dataset: {ds_name}'
-
-        alg_name = td.get('algorithm_name', None)
-        assert alg_name in algorithm_list, f'Unknown Algorithm: {alg_name}'
-
-        run_number = td.get('run_number', 0)
-        model_key = f"{alg_name}_{ds_name}_{run_number}"
-        if model_key in metadata_dict:
-            raise Exception("{id_base} already exists. Give a unique " +
-                            "`run_number` to avoid collisions.")
-        else:
-            td['run_number'] = run_number
-            metadata_dict[model_key] = td
-
-    saved_meta = {}
-    for model_key, td in metadata_dict.items():
-        logger.debug(f'Creating model for {model_key}')
-        trained_model, added_metadata = train_model(hash_type=hash_type,
-                                                    **td)
-        # replace specified params with full set of params used
-        td['algorithm_params'] = dict(trained_model.get_params())
-        new_metdata = {**td, **added_metadata}
-        saved_meta[model_key] = save_model(model_name=model_key,
-                                           model=trained_model,
-                                           metadata=new_metdata)
+    saved_meta = build_models(model_file=model_list, hash_type=hash_type)
 
     logger.debug(f"output dir: {model_path}")
     logger.debug(f"output filename: {output_file}")
