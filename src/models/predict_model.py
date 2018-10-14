@@ -7,7 +7,8 @@ import click
 
 from ..logging import logger
 from ..paths import model_path, model_output_path
-from . import run_model
+from .predict import run_predictions
+
 
 @click.command()
 @click.argument('model_list')
@@ -18,22 +19,12 @@ def main(model_list, *, output_file, hash_type):
 
     os.makedirs(model_output_path, exist_ok=True)
 
-    predict_list = load_json(model_path / model_list)
-
-    saved_meta = {}
-    metadata_keys = ['dataset_name', 'hash_type', 'data_hash', 'target_hash', 'experiment']
-    for exp in predict_list:
-        ds = run_model(**exp)
-        name = ds.metadata['dataset_name']
-        metadata = {}
-        for key in metadata_keys:
-            metadata[key] = ds.metadata[key]
-            saved_meta[name] = metadata
+    saved_meta = run_predictions(predict_file=model_list, predict_dir=model_path)
 
     if saved_meta:
         save_json(model_path / output_file, saved_meta)
         logger.info(f"Predict complete! Results in {output_file}")
-    
+
 if __name__ == '__main__':
 
     # not used in this stub but often useful for finding various files
