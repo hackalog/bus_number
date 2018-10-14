@@ -41,12 +41,12 @@ process_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 ## Apply Transformations to produce fully processed Datsets
-transform_datasets:
+transform_data:
 	$(PYTHON_INTERPRETER) -m src.data.apply_transforms transformer_list.json
 
 ## train / fit / build models
 train: models/model_list.json
-	$(PYTHON_INTERPRETER) -m src.models.train_model model_list.json
+	$(PYTHON_INTERPRETER) -m src.models.train_models model_list.json
 
 ## predict / transform / run experiments
 predict: models/predict_list.json
