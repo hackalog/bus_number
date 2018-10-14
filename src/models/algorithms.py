@@ -53,7 +53,7 @@ class ComboGridSearchCV(BaseEstimator):
         self.alg_name = alg_name
         self.alg_params = alg_params
         self.params = params
-        self.GSCV_ = None 
+        self.GSCV_ = None
 
     def fit(self, X, y=None, **kwargs):
         alg = available_algorithms()[self.alg_name]
@@ -66,16 +66,15 @@ class ComboGridSearchCV(BaseEstimator):
             logger.warning("fit must be run before transform")
         return self.GSCV_.transform(X, y=y, **kwargs)
 
-    def predict(self, X, y=None, **kwargs):
+    def predict(self, X, **kwargs):
         if self.GSCV_ is None:
             logger.warning("fit must be run before precit")
-        return self.GSCV_.predict(X, y=y, **kwargs)
-        
-        
+        return self.GSCV_.predict(X, **kwargs)
+
+
 _ALGORITHMS = {
     'linearSVC': LinearSVC(),
     'GradientBoostingClassifier': GradientBoostingClassifier(),
     'GridSearchCV': ComboGridSearchCV(),
     'RandomForestClassifier': RandomForestClassifier(),
 }
-
