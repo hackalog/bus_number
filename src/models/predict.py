@@ -26,7 +26,7 @@ def run_model(experiment_info=None,
               force=False,
               hash_type='sha1',
               output_path=None,
-              run_number=0,
+              run_number=1,
               *,
               dataset_name,
               is_supervised,
@@ -227,7 +227,7 @@ def del_prediction(index, model_dir=None, prediction_file=None):
 def add_prediction(dataset_name=None,
                    model_name=None,
                    model_dir=None, model_file='predict_list.json',
-                   is_supervised=True):
+                   is_supervised=True, force=False):
     """Create and add a prediction (experiment) to the prediction list.
 
     Predictions involve passing a Dataset through a (trained) model
@@ -262,8 +262,12 @@ def add_prediction(dataset_name=None,
         'model_name': model_name,
         'is_supervised': is_supervised,
     }
+    if (prediction in model_list) and not force:
+        logger.warning(f"prediction: {prediction} is already in the prediction list. " +
+                       "Skipping. To force an addition, set force=True")
+    else:
+        model_list.append(prediction)
 
-    model_list.append(prediction)
     save_json(model_file_fq, model_list)
 
 def available_predictions(models_dir=None, keys_only=True):

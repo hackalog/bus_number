@@ -23,7 +23,7 @@ def main(model_list, *, output_file, hash_type):
 
     if saved_meta:
         save_json(model_path / output_file, saved_meta)
-        logger.info(f"Predict complete! Results in {output_file}")
+        logger.info(f"Predict complete! Results accessible via workflow.available_predictions")
 
 if __name__ == '__main__':
 

@@ -64,7 +64,7 @@ class ComboGridSearchCV(BaseEstimator):
         self.GSCV_ = None
 
     def fit(self, X, y=None, **kwargs):
-        alg = available_algorithms()[self.alg_name]
+        alg = available_algorithms(keys_only=False)[self.alg_name]
         alg.set_params(**self.alg_params)
         self.GSCV_ = GridSearchCV(alg, self.gridsearch_params, **self.params)
         self.GSCV_.fit(X, y=y, **kwargs)
