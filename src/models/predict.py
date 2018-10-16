@@ -17,7 +17,7 @@ __all__ = [
     'run_predictions',
     'add_prediction',
     'get_prediction_list',
-    'del_prediction',
+    'pop_prediction',
     'available_predictions',
 ]
 
@@ -209,8 +209,8 @@ def get_prediction_list(model_dir=None, prediction_file=None, include_filename=F
 
     return get_model_list(model_dir=model_dir, model_file=prediction_file, include_filename=include_filename)
 
-def del_prediction(index, model_dir=None, prediction_file=None):
-    """Delete an entry in the predict list
+def pop_prediction(index=-1, model_dir=None, prediction_file=None):
+    """pop an entry from the prediction list
 
     index: index of entry
     model_dir: path. (default: MODULE_DIR)
@@ -221,8 +221,9 @@ def del_prediction(index, model_dir=None, prediction_file=None):
     predict_list, predict_file_fq = get_prediction_list(model_dir=model_dir,
                                                         prediction_file=prediction_file,
                                                         include_filename=True)
-    del(predict_list[index])
+    item = predict_list.pop(index)
     save_json(predict_file_fq, predict_list)
+    return item
 
 def add_prediction(dataset_name=None,
                    model_name=None,
