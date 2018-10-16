@@ -1,9 +1,35 @@
-'''
-Instructions for joining up parts of a Reproducible Data Science workflow
+'''Methods for joining up parts of a Reproducible Data Science workflow
 
-RawDataset: make raw
+Raw Data:
+---------
+Makefile target: `make process_raw` or `make raw`
 
-Dataset: make data
+This part of the process handles downloading, unpacking, and cacheing
+raw data files, as well as assembling documentation and license
+information. These files are located in `paths.raw_data_path`.
+Cache files and unpacked raw files are saved to `paths.interim_data_path`.
+
+The equivalent workflow command is `process_raw_datasets()`.
+
+Other relevant commands are:
+     available_raw_datasets()
+  `  add_raw_dataset()
+
+Process Data:
+-------------
+Makefile target: `make transform_data` or `make data`
+
+Datasets are one of two fundamental data types in a reproducible data
+science flow.  Datasets may be transformed into new datasets, via functions called
+"transformers". Transformed datasets are saved in `paths.processed_data_path`
+
+The equivalent workflow command to `make transform_data` is `apply_transforms()'
+Other relevant commands are:
+
+    get_transformer_list()
+    add_transformer()
+    del_transformer()
+    available_transformers()
 
 Models: make train
 
