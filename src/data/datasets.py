@@ -19,6 +19,7 @@ __all__ = [
     'add_raw_dataset',
     'available_datasets',
     'available_raw_datasets',
+    'process_raw_datasets',
 ]
 
 _MODULE = sys.modules[__name__]
@@ -47,6 +48,34 @@ def available_datasets(dataset_path=None, keys_only=True):
         return list(ds_dict.keys())
     return ds_dict
 
+
+def process_raw_datasets(raw_datasets=None, action='process'):
+    """Fetch, Unpack, and Process raw datasets.
+
+    Parameters
+    ----------
+    raw_datasets: list or None
+        List of raw dataset names to process.
+        if None, loops over all available raw datasets.
+    action: {'fetch', 'unpack', 'process'}
+        Action to perform on raw datasets:
+            'fetch': download raw files
+            'unpack': unpack raw files
+            'process': generate and cache Dataset objects
+    """
+    if raw_datasets is None:
+        raw_datasets = available_raw_datasets()
+
+    for dataset_name in raw_datasets:
+        raw_ds = RawDataset.from_name(dataset_name)
+        logger.info(f'Running {action} on {dataset_name}')
+        if action == 'fetch':
+            raw_ds.fetch()
+        elif action == 'unpack':
+            raw_ds.unpack()
+        elif action == 'process':
+            ds = raw_ds.process()
+            logger.info(f'{dataset_name}: processed data has shape:{ds.data.shape}')
 
 def add_raw_dataset(rawds):
     """Add a raw dataset to the list of available raw datasets"""
