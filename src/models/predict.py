@@ -22,7 +22,7 @@ __all__ = [
 ]
 
 def run_model(experiment_info=None,
-              file_base=None,
+              output_dataset=None,
               force=False,
               hash_type='sha1',
               output_path=None,
@@ -35,7 +35,7 @@ def run_model(experiment_info=None,
 
     Runs an algorithm_object on the dataset and returns a new
     dataset object, tagged with experiment metadata,
-    and saves it to disk under `data_path / file_base`.
+    and saves it to disk under `data_path / output_dataset`.
 
     Parameters
     ----------
@@ -48,7 +48,7 @@ def run_model(experiment_info=None,
         This is used as the output dataset's DESCR text
     output_path: path
         directory to store output files
-    file_base: (str, optional) filename base for the output dataset.
+    output_dataset: (str, optional) filename base for the output dataset.
         Will also be used as the output `dataset.name`.
     run_number: (int)
         attempt number via the same parameters
@@ -65,8 +65,8 @@ def run_model(experiment_info=None,
     else:
         output_path = pathlib.Path(output_path)
 
-    if file_base is None:
-        file_base = f'{model_name}_exp_{dataset_name}_{run_number}'
+    if output_dataset is None:
+        output_dataset = f'{model_name}_exp_{dataset_name}_{run_number}'
 
     os.makedirs(output_path, exist_ok=True)
 
@@ -80,24 +80,24 @@ def run_model(experiment_info=None,
         'dataset_name': dataset_name,
         'run_number': run_number,
         'hash_type': hash_type,
-        'data_hash': joblib.hash(dataset.data, hash_name=hash_type),
-        'target_hash': joblib.hash(dataset.target, hash_name=hash_type),
+        'input_data_hash': joblib.hash(dataset.data, hash_name=hash_type),
+        'input_target_hash': joblib.hash(dataset.target, hash_name=hash_type),
         'model_hash': joblib.hash(model, hash_name=hash_type),
     }
-    logger.debug(f"Predict: Applying {model_name} on {dataset_name}")
-    metadata_fq = output_path / f'{file_base}.metadata'
+    logger.debug(f"Predict: Applying {model_name} to {dataset_name}")
+    metadata_fq = output_path / f'{output_dataset}.metadata'
 
     if metadata_fq.exists() and force is False:
-        cached_metadata = Dataset.load(file_base, data_path=output_path,
+        cached_metadata = Dataset.load(output_dataset, data_path=output_path,
                                        metadata_only=True)
         if experiment.items() <= cached_metadata['experiment'].items():
             logger.info("Experiment has already been run. Returning Cached Result")
-            return Dataset.load(file_base, data_path=output_path)
+            return Dataset.load(output_dataset, data_path=output_path)
         else:
-            raise Exception(f'An Experiment with name {file_base} exists already, '
+            raise Exception(f'An Experiment with name {output_dataset} exists already, '
                             'but metadata has changed. '
                             'Use `force=True` to overwrite, or change one of '
-                            '`run_number` or `file_base`')
+                            '`run_number` or `output_dataset`')
 
     # Either force is True, or we need to rerun the algorithm.
     start_time = time.time()
@@ -111,17 +111,18 @@ def run_model(experiment_info=None,
             logger.debug('No Transform found. Running fit_transform')
             exp_data = model.fit_transform(dataset.data)
 
-    end_time = record_time_interval(file_base, start_time)
+    end_time = record_time_interval(output_dataset, start_time)
 
     experiment['start_time'] = start_time
     experiment['duration'] = end_time - start_time
 
     new_metadata = dataset.metadata.copy()
     new_metadata['experiment'] = experiment
-    new_dataset = Dataset(dataset_name=file_base, data=exp_data,
-                          target=dataset.target, metadata=new_metadata,
-                          descr_txt=experiment_info)
-    new_dataset.dump(file_base=file_base, dump_path=output_path, force=True)
+    if experiment_info:
+        new_metadata['descr'] = experiment_info
+    new_dataset = Dataset(dataset_name=output_dataset, data=exp_data,
+                          target=dataset.target.copy(), metadata=new_metadata)
+    new_dataset.dump(file_base=output_dataset, dump_path=output_path, force=True)
     return new_dataset
 
 
@@ -158,7 +159,7 @@ def load_prediction(predict_name=None, metadata_only=False, predict_path=None):
 
     return predict
 
-def run_predictions(*, predict_file, predict_dir=None):
+def run_predictions(force=False, *, predict_file='predict_list.json', predict_dir=None):
     """
     """
     if predict_dir is None:
@@ -171,7 +172,7 @@ def run_predictions(*, predict_file, predict_dir=None):
     saved_meta = {}
     metadata_keys = ['dataset_name', 'hash_type', 'data_hash', 'target_hash', 'experiment']
     for exp in predict_list:
-        ds = run_model(**exp)
+        ds = run_model(**exp, force=force)
         name = ds.metadata['dataset_name']
         metadata = {}
         for key in metadata_keys:
@@ -229,8 +230,8 @@ def add_prediction(dataset_name=None,
                    model_name=None,
                    model_dir=None, model_file='predict_list.json',
                    is_supervised=True,
-                   force=False,
-                   force_predict=False):
+                   output_dataset=None,
+                   force=False):
     """Create and add a prediction (experiment) to the prediction list.
 
     Predictions involve passing a Dataset through a (trained) model
@@ -240,6 +241,8 @@ def add_prediction(dataset_name=None,
     ----------
     dataset_name: string
         Name of dataset to train the model on
+    output_dataset: string
+        Name to use for output dataset.
     model_name: string
         Name of an model to use, given by `available_models()`
     is_supervised: boolean
@@ -251,8 +254,6 @@ def add_prediction(dataset_name=None,
         Name of json file that contains the model pipeline
     force: boolean, default False
         Force the addition of a prediction to the predict list
-    force_predict: boolean, default False
-        force_predict to force a prediction to happen.
     """
     if model_dir is None:
         model_dir = model_path
@@ -268,7 +269,7 @@ def add_prediction(dataset_name=None,
         'dataset_name': dataset_name,
         'model_name': model_name,
         'is_supervised': is_supervised,
-        'force': force_predict
+        'output_dataset': output_dataset,
     }
     if (prediction in model_list) and not force:
         logger.warning(f"prediction: {prediction} is already in the prediction list. " +
