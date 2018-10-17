@@ -52,9 +52,9 @@ train: models/model_list.json
 predict: models/predict_list.json
 	$(PYTHON_INTERPRETER) -m src.models.predict_model predict_list.json
 
-## summary analysis into dfs
-summary: reports/summary_list.json
-	$(PYTHON_INTERPRETER) -m src.reports.run_analysis summary_list.json
+## Convert predictions / transforms / experiments into output data
+summary: reports/analysis_list.json
+	$(PYTHON_INTERPRETER) -m src.analysis.run_analysis analysis_list.json
 
 ## Delete all compiled Python files
 clean:
@@ -66,17 +66,27 @@ clean_cache:
 
 ## Delete all processed datasets
 clean_datasets:
-	rm data/processed/*
+	rm -f data/processed/*
 
 ## Delete all trained models
 clean_models:
-	rm models/trained/*
-	rm models/trained_models.json
+	rm -f models/trained/*
+	rm -f models/trained_models.json
 
 ## Delete all predictions
 clean_predictions:
-	rm models/predictions/*
-	rm models/predictions.json
+	rm -f models/predictions/*
+	rm -f models/predictions.json
+
+clean_workflow:
+	rm -f models/model_list.json
+	rm -f models/predict_list.json
+	rm -f models/predictions.json
+	rm -f models/trained_models.json
+	rm -f reports/analysis_list.json
+	rm -f reports/summary_list.json
+	rm -f reports/analyses.json
+	rm -f reports/summaries.json
 
 ## Run all Unit Tests
 test:
