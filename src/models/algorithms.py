@@ -13,24 +13,21 @@ def available_algorithms(keys_only=True):
     This function simply returns a dict of known
     algorithms strings and their corresponding estimator function.
 
-    It exists to allow for a description of the mapping for
-    each of the valid strings as a docstring
-
-    The valid algorithm names, and the function they map to, are:
-
-
-    ============                 ====================================
-    Algorithm                    Function
-    ============                 ====================================
-    LinearSVC                    sklearn.svm.LinearSVC
-    GradientBoostingClassifier   sklearn.ensemble.GradientBoostingClassifier
-    ============                 ====================================
-
     Parameters
     ----------
     keys_only: boolean
         If True, return only keys. Otherwise, return a dictionary mapping keys to algorithms
+
+    Valid Algorithms
+    ----------------
+    The valid algorithm names, and the function they map to, are:
+
+    'linearSVC': sklearn.svm.LinearSVC
+
     """
+    _ALGORITHMS = {
+        'linearSVC': LinearSVC(),
+    }
     if keys_only:
         return list(_ALGORITHMS.keys())
     return _ALGORITHMS
@@ -78,11 +75,3 @@ class ComboGridSearchCV(BaseEstimator):
         if self.GSCV_ is None:
             logger.warning("fit must be run before precit")
         return self.GSCV_.predict(X, **kwargs)
-
-
-_ALGORITHMS = {
-    'linearSVC': LinearSVC(),
-    'GradientBoostingClassifier': GradientBoostingClassifier(),
-    'GridSearchCV': ComboGridSearchCV(),
-    'RandomForestClassifier': RandomForestClassifier(),
-}

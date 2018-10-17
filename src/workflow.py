@@ -35,6 +35,9 @@ Models: make train
 
 Experiments: make predict
 
+Analyses: make summary
+
+
 '''
 from .data.transformers import available_transformers
 from .models import available_algorithms
