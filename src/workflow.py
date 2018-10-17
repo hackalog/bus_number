@@ -45,6 +45,7 @@ from .models.predict import (add_prediction, get_prediction_list,
                              pop_prediction, run_predictions, available_predictions)
 from .data import (Dataset, RawDataset, available_datasets, available_raw_datasets, add_raw_dataset)
 from .data.transform_data import get_transformer_list, add_transformer, del_transformer, apply_transforms
+from .analysis.analysis import available_scorers, available_analyses, get_analysis_list, run_analyses, add_analysis
 
 __all__ = [
     'available_datasets',
@@ -65,4 +66,9 @@ __all__ = [
     'pop_prediction',
     'run_predictions',
     'available_predictions',
+    'available_scorers',
+    'available_analyses',
+    'get_analysis_list',
+    'run_analyses',
+    'add_analysis',
 ]
