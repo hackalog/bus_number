@@ -2,10 +2,11 @@ import json
 import joblib
 import pathlib
 import logging
+import time
 
 from .. import paths
 from ..paths import trained_model_path, model_path
-from ..utils import save_json, load_json
+from ..utils import save_json, load_json, record_time_interval
 from ..data import Dataset, available_datasets
 from .algorithms import available_algorithms
 from ..logging import logger
@@ -28,7 +29,11 @@ def train_model(algorithm_params=None,
     metadata['target_hash'] = joblib.hash(ds.target, hash_name=hash_type)
     model = available_algorithms(keys_only=False)[algorithm_name]
     model.set_params(**algorithm_params)
+    start_time = time.time()
     model.fit(ds.data, y=ds.target)
+    end_time = record_time_interval('train_model', start_time)
+    metadata['start_time'] = start_time
+    metadata['duration'] = end_time - start_time
     return model, metadata
 
 
