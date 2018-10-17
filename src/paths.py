@@ -12,10 +12,12 @@ interim_data_path = data_path / 'interim'
 processed_data_path = data_path / 'processed'
 
 model_path = project_dir / 'models'
-
 trained_model_path = model_path / 'trained'
 model_output_path = model_path / 'predictions'
 
-reports_path = project_dir / 'reports'
+analysis_path = project_dir / 'reports'
+summary_path = analysis_path / 'summary'
+tables_path = analysis_path / 'tables'
+figures_path = analysis_path / 'figures'
 
-summary_path = reports_path / 'summaries'
+reports_path = project_dir / 'reports'

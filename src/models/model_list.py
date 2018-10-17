@@ -178,7 +178,7 @@ def build_models(model_file='model_list.json', model_dir=None, hash_type='sha1')
 
         saved_meta = {}
         for model_key, td in metadata_dict.items():
-            logger.debug(f'Creating model for {model_key}')
+            logger.info(f'Creating model: {model_key}')
             trained_model, added_metadata = train_model(hash_type=hash_type,
                                                         **td)
             # replace specified params with full set of params used

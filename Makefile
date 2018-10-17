@@ -61,6 +61,13 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
+clean_cache:
+	rm -rf data/interim/*
+
+## Delete all processed datasets
+clean_datasets:
+	rm data/processed/*
+
 ## Delete all trained models
 clean_models:
 	rm models/trained/*

@@ -19,6 +19,7 @@ __all__ = [
     'add_raw_dataset',
     'available_datasets',
     'available_raw_datasets',
+    'process_raw_datasets',
 ]
 
 _MODULE = sys.modules[__name__]
@@ -47,6 +48,34 @@ def available_datasets(dataset_path=None, keys_only=True):
         return list(ds_dict.keys())
     return ds_dict
 
+
+def process_raw_datasets(raw_datasets=None, action='process'):
+    """Fetch, Unpack, and Process raw datasets.
+
+    Parameters
+    ----------
+    raw_datasets: list or None
+        List of raw dataset names to process.
+        if None, loops over all available raw datasets.
+    action: {'fetch', 'unpack', 'process'}
+        Action to perform on raw datasets:
+            'fetch': download raw files
+            'unpack': unpack raw files
+            'process': generate and cache Dataset objects
+    """
+    if raw_datasets is None:
+        raw_datasets = available_raw_datasets()
+
+    for dataset_name in raw_datasets:
+        raw_ds = RawDataset.from_name(dataset_name)
+        logger.info(f'Running {action} on {dataset_name}')
+        if action == 'fetch':
+            raw_ds.fetch()
+        elif action == 'unpack':
+            raw_ds.unpack()
+        elif action == 'process':
+            ds = raw_ds.process()
+            logger.info(f'{dataset_name}: processed data has shape:{ds.data.shape}')
 
 def add_raw_dataset(rawds):
     """Add a raw dataset to the list of available raw datasets"""
@@ -232,11 +261,6 @@ class Dataset(Bunch):
 
         return ds
 
-    def __hash__(self):
-        """Hash. Remember, a Bunch is just a dict with a fancy API"""
-        _hash = joblib.hash(self)
-        return hash(_hash)
-
     def get_data_hashes(self, exclude_list=None, hash_type='sha1'):
         """Compute a the hash of data items
 
@@ -256,35 +280,6 @@ class Dataset(Bunch):
                 continue
             ret[f"{key}_hash"] = joblib.hash(value, hash_name=hash_type)
         return ret
-
-    def split(self, **kwargs):
-        """Perform train/test split
-
-        Parameters
-        ----------
-        **kwargs:
-            remaining kwargs are passed to sklearn.model_selection.train_test_split
-            and can be found in that function's docstring
-
-        Returns
-        -------
-        Tuple:
-            (train_dataset, test_dataset)
-        where both datasets have identical metadata, except that
-        dataset name has been modified to {dataset_name}_{kind}, and the random_seed
-        used to split has been recorded metadata['split_random_state']
-        """
-        if self.data is None:
-            raise Exception("Cannot split empty Dataset")
-
-        self.metadata['split_options'] = kwargs
-
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.data, self.target, **kwargs)
-        self.train_data = X_train
-        self.train_target = y_train
-        self.test_data = X_test
-        self.test_target = y_test
 
     def dump(self, file_base=None, dump_path=None, hash_type='sha1',
              force=True, create_dirs=True, dump_metadata=True):

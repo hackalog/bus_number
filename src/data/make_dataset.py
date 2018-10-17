@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-from .datasets import available_raw_datasets, RawDataset
+from .datasets import process_raw_datasets
 from ..logging import logger
 
 @click.command()
@@ -19,21 +19,7 @@ def main(action, raw_datasets=None):
     action: {'fetch', 'unpack', 'process'}
 
     """
-
-    if raw_datasets is None:
-        raw_datasets = available_raw_datasets()
-
-    for dataset_name in raw_datasets:
-        raw_ds = RawDataset.from_name(dataset_name)
-        logger.info(f'Running {action} on {dataset_name}')
-        if action == 'fetch':
-            raw_ds.fetch()
-        elif action == 'unpack':
-            raw_ds.unpack()
-        elif action == 'process':
-            ds = raw_ds.process()
-            logger.info(f'{dataset_name}: processed data has shape:{ds.data.shape}')
-
+    process_raw_datasets(raw_datasets=raw_datasets, action=action)
 
 if __name__ == '__main__':
     # not used in this stub but often useful for finding various files

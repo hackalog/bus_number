@@ -27,9 +27,9 @@ def record_time_interval(section, start_time, line_break=False):
     else:
         units = "s"
     if line_break:
-        logger.info("PROCESS_TIME:{:>36}    {} {}\n".format(section, round(delta, 1), units))
+        logger.debug("PROCESS_TIME:{:>36}    {} {}\n".format(section, round(delta, 1), units))
     else:
-        logger.info("PROCESS_TIME:{:>36}    {} {}".format(section, round(delta, 1), units))
+        logger.debug("PROCESS_TIME:{:>36}    {} {}".format(section, round(delta, 1), units))
     return end_time
 
 def normalize_numpy_dict(d):
