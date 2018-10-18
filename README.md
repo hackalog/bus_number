@@ -1,20 +1,19 @@
 bus_number
 ==============================
 
-Up Your Bus Number: A Primer for Reproducible Data Science
+Up Your Bus Number: A Workflow for Reproducible Data Science
 
 GETTING STARTED
 ---------------
+
+For complete instructions, visit: https://github.com/hackalog/bus_number/wiki/Getting-Started
 
 * Create and switch to the  virtual environment:
 ```
 cd bus_number
 make create_environment
 conda activate bus_number
-```
-* Fetch the raw data and process it into a usable form
-```
-make data
+make requirements
 ```
 * Explore the notebooks in the `notebooks` directory
 
