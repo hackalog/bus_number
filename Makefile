@@ -26,10 +26,10 @@ else
 endif
 
 ## convert raw datasets into fully processed datasets
-data: raw transform_data
+data: transform_data
 
 ## Fetch, Unpack, and Process raw dataset files
-raw: requirements process_raw
+raw: process_raw
 
 fetch_raw:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
@@ -64,6 +64,9 @@ clean:
 clean_cache:
 	rm -rf data/interim/*
 
+clarn_raw:
+	rm -f data/raw/*
+
 ## Delete all processed datasets
 clean_datasets:
 	rm -f data/processed/*
@@ -79,7 +82,8 @@ clean_predictions:
 	rm -f models/predictions.json
 
 clean_workflow:
-	rm -f models/model_list.json
+	rm -f src/data/raw_datasets.json
+	rm -f src/data/transformer_list.json
 	rm -f models/predict_list.json
 	rm -f models/predictions.json
 	rm -f models/trained_models.json
