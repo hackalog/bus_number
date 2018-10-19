@@ -64,7 +64,7 @@ clean:
 clean_cache:
 	rm -rf data/interim/*
 
-clarn_raw:
+clean_raw:
 	rm -f data/raw/*
 
 ## Delete all processed datasets
@@ -84,6 +84,7 @@ clean_predictions:
 clean_workflow:
 	rm -f src/data/raw_datasets.json
 	rm -f src/data/transformer_list.json
+	rm -f models/model_list.json
 	rm -f models/predict_list.json
 	rm -f models/predictions.json
 	rm -f models/trained_models.json
