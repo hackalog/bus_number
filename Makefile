@@ -53,7 +53,7 @@ predict: models/predict_list.json
 	$(PYTHON_INTERPRETER) -m src.models.predict_model predict_list.json
 
 ## Convert predictions / transforms / experiments into output data
-summary: reports/analysis_list.json
+analysis: reports/analysis_list.json
 	$(PYTHON_INTERPRETER) -m src.analysis.run_analysis analysis_list.json
 
 ## Delete all compiled Python files
@@ -64,7 +64,7 @@ clean:
 clean_cache:
 	rm -rf data/interim/*
 
-clarn_raw:
+clean_raw:
 	rm -f data/raw/*
 
 ## Delete all processed datasets
@@ -84,6 +84,7 @@ clean_predictions:
 clean_workflow:
 	rm -f src/data/raw_datasets.json
 	rm -f src/data/transformer_list.json
+	rm -f models/model_list.json
 	rm -f models/predict_list.json
 	rm -f models/predictions.json
 	rm -f models/trained_models.json
