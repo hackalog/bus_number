@@ -17,13 +17,7 @@ VIRTUALENV = conda
 #################################################################################
 
 ## Install or update Python Dependencies
-requirements: test_environment
-ifeq (conda, $(VIRTUALENV))
-	conda env update --name $(PROJECT_NAME) -f environment.yml
-else
-	pip install -U pip setuptools wheel
-	pip install -r requirements.txt
-endif
+requirements: test_environment environment.lock
 
 ## convert raw datasets into fully processed datasets
 data: transform_data
@@ -117,12 +111,26 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
+environment.lock: environment.yml
+ifeq (conda, $(VIRTUALENV))
+	conda env update -n $(PROJECT_NAME) -f $<
+	conda env export -n $(PROJECT_NAME) -f $@
+else
+	$(error Unsupported Environment `$(VIRTUALENV)`. Use conda)
+endif
+
 ## Set up python interpreter environment
 create_environment:
 ifeq (conda,$(VIRTUALENV))
-		@echo ">>> Detected conda, creating conda environment."
+	@echo ">>> Detected conda, creating conda environment."
+ifneq ("X$(wildcard ./environment.lock)","X")
+	conda env create --name $(PROJECT_NAME) -f environment.lock
+else
+	@echo ">>> Creating lockfile from conda environment specification."
 	conda env create --name $(PROJECT_NAME) -f environment.yml
-		@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
+	conda env export --name $(PROJECT_NAME) -f environment.lock
+endif
+	@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
 else
 	@pip install -q virtualenv virtualenvwrapper
 	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
