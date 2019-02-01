@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 fetch_data unpack_data predict train
+.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 fetch_data unpack_data predict train test_environment
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -138,6 +138,13 @@ else
 	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
 	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
 endif
+
+delete_environment:
+ifeq (conda,$(VIRTUALENV))
+	@echo "Deleting conda environment."
+	conda env remove -n $(PROJECT_NAME)
+endif
+
 
 ## Test python environment is set-up correctly
 test_environment:
