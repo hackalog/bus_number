@@ -22,16 +22,16 @@ requirements: test_environment environment.lock
 ## convert raw datasets into fully processed datasets
 data: transform_data
 
-## Fetch, Unpack, and Process raw dataset files
-raw: process_raw
+## Fetch, Unpack, and Process raw DataSources
+sources: process_sources
 
-fetch_raw:
+fetch_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
 
-unpack_raw:
+unpack_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
 
-process_raw:
+process_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 ## Apply Transformations to produce fully processed Datsets
@@ -55,14 +55,16 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-clean_cache:
+## Delete all interim (DataSource) files
+clean_interim:
 	rm -rf data/interim/*
 
+## Delete the raw downloads directory
 clean_raw:
 	rm -f data/raw/*
 
 ## Delete all processed datasets
-clean_datasets:
+clean_processed:
 	rm -f data/processed/*
 
 ## Delete all trained models
