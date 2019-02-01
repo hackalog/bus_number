@@ -115,8 +115,8 @@ endif
 
 environment.lock: environment.yml
 ifeq (conda, $(VIRTUALENV))
-	conda env update -n $(PROJECT_NAME) -f $<
-	conda env export -n $(PROJECT_NAME) -f $@
+	$(CONDA_EXE) env update -n $(PROJECT_NAME) -f $<
+	$(CONDA_EXE) env export -n $(PROJECT_NAME) -f $@
 else
 	$(error Unsupported Environment `$(VIRTUALENV)`. Use conda)
 endif
@@ -126,11 +126,11 @@ create_environment:
 ifeq (conda,$(VIRTUALENV))
 	@echo ">>> Detected conda, creating conda environment."
 ifneq ("X$(wildcard ./environment.lock)","X")
-	conda env create --name $(PROJECT_NAME) -f environment.lock
+	$(CONDA_EXE) env create --name $(PROJECT_NAME) -f environment.lock
 else
-	@echo ">>> Creating lockfile from conda environment specification."
-	conda env create --name $(PROJECT_NAME) -f environment.yml
-	conda env export --name $(PROJECT_NAME) -f environment.lock
+	@echo ">>> Creating lockfile from $(CONDA_EXE) environment specification."
+	$(CONDA_EXE) env create --name $(PROJECT_NAME) -f environment.yml
+	$(CONDA_EXE) env export --name $(PROJECT_NAME) -f environment.lock
 endif
 	@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
 else
@@ -144,7 +144,7 @@ endif
 delete_environment:
 ifeq (conda,$(VIRTUALENV))
 	@echo "Deleting conda environment."
-	conda env remove -n $(PROJECT_NAME)
+	$(CONDA_EXE) env remove -n $(PROJECT_NAME)
 endif
 
 
