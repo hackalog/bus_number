@@ -502,8 +502,9 @@ class DataSource(object):
         self.fetched_files_ = []
         for item in self.file_list:
             status, result, hash_value = fetch_file(**item)
-            if status:
+            if status:  # True (cached) or HTTP Code (successful download)
                 item['hash_value'] = hash_value
+                item['file_name'] = result.name
                 self.fetched_files_.append(result)
             else:
                 if item.get('url', False):
