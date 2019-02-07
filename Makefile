@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 fetch_data unpack_data predict train
+.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 fetch_data unpack_data predict train test_environment
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -17,27 +17,21 @@ VIRTUALENV = conda
 #################################################################################
 
 ## Install or update Python Dependencies
-requirements: test_environment
-ifeq (conda, $(VIRTUALENV))
-	conda env update --name $(PROJECT_NAME) -f environment.yml
-else
-	pip install -U pip setuptools wheel
-	pip install -r requirements.txt
-endif
+requirements: test_environment environment.lock
 
 ## convert raw datasets into fully processed datasets
 data: transform_data
 
-## Fetch, Unpack, and Process raw dataset files
-raw: process_raw
+## Fetch, Unpack, and Process raw DataSources
+sources: process_sources
 
-fetch_raw:
+fetch_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
 
-unpack_raw:
+unpack_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
 
-process_raw:
+process_sources:
 	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
 
 ## Apply Transformations to produce fully processed Datsets
@@ -61,14 +55,16 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-clean_cache:
+## Delete all interim (DataSource) files
+clean_interim:
 	rm -rf data/interim/*
 
+## Delete the raw downloads directory
 clean_raw:
 	rm -f data/raw/*
 
 ## Delete all processed datasets
-clean_datasets:
+clean_processed:
 	rm -f data/processed/*
 
 ## Delete all trained models
@@ -117,12 +113,26 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
+environment.lock: environment.yml
+ifeq (conda, $(VIRTUALENV))
+	$(CONDA_EXE) env update -n $(PROJECT_NAME) -f $<
+	$(CONDA_EXE) env export -n $(PROJECT_NAME) -f $@
+else
+	$(error Unsupported Environment `$(VIRTUALENV)`. Use conda)
+endif
+
 ## Set up python interpreter environment
 create_environment:
 ifeq (conda,$(VIRTUALENV))
-		@echo ">>> Detected conda, creating conda environment."
-	conda env create --name $(PROJECT_NAME) -f environment.yml
-		@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
+	@echo ">>> Detected conda, creating conda environment."
+ifneq ("X$(wildcard ./environment.lock)","X")
+	$(CONDA_EXE) env create --name $(PROJECT_NAME) -f environment.lock
+else
+	@echo ">>> Creating lockfile from $(CONDA_EXE) environment specification."
+	$(CONDA_EXE) env create --name $(PROJECT_NAME) -f environment.yml
+	$(CONDA_EXE) env export --name $(PROJECT_NAME) -f environment.lock
+endif
+	@echo ">>> New conda env created. Activate with: 'conda activate $(PROJECT_NAME)'"
 else
 	@pip install -q virtualenv virtualenvwrapper
 	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
@@ -130,6 +140,13 @@ else
 	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
 	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
 endif
+
+delete_environment:
+ifeq (conda,$(VIRTUALENV))
+	@echo "Deleting conda environment."
+	$(CONDA_EXE) env remove -n $(PROJECT_NAME)
+endif
+
 
 ## Test python environment is set-up correctly
 test_environment:
