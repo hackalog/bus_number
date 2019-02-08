@@ -6,6 +6,7 @@ src_module_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 project_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__))).parent
 
 data_path = project_dir / 'data'
+catalog_path = project_dir / 'catalog'
 
 raw_data_path = data_path / 'raw'
 interim_data_path = data_path / 'interim'
