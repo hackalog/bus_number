@@ -119,36 +119,6 @@ When complete, you should have a fully populated project directory, complete wit
 We will be working in this project from now on.
 
 
-## Solution 2:
-<pre>
- $ <b>cookiecutter cookiecutter-easydata</b>
-
-project_name [project_name]: <b>bus_number_tutorial</b>
-repo_name [bus_number]: <b>↵</b>
-module_name [src]: <b>↵</b>
-author_name [Your name (or your organization/company/team)]: <b>Kjell Wooding</b>
-description [A short description of this project.]: <b>Reproducible Data Science</b>
-Select open_source_license:
-1 - MIT
-2 - BSD-2-Clause
-3 - Proprietary
-Choose from 1, 2, 3 [1]: <b>↵</b>
-s3_bucket [[OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')]: <b>↵</b>
-aws_profile [default]: <b>↵</b>
-Select virtualenv:
-1 - conda
-2 - virtualenv
-Choose from 1, 2 [1]: <b>↵</b>
-Select python_interpreter:
-1 - python3
-2 - python
-Choose from 1, 2 [1]: <b>↵</b>
-
-
- $ <b>cd bus_number_tutorial</b>
-
-</pre>
-
 ##  Virtual Environments: `conda` and environment files
 
 Everyone's computing environment is different. How can we ensure that another user running a different platform can successfully run the code you are creating? How do we know they are using the same versions of your code and all its various supporting libraries? How do we reproduce your working environment on someone else's machine?
