@@ -8,13 +8,13 @@ A typical data science process involves three main kinds of tasks:
 
 where our time tends to be allocated something like this:
 
-<img src="charts/munge-supervised.png" alt="Typical Data science Process" width=500/>
+<img src="notebooks/charts/munge-supervised.png" alt="Typical Data science Process" width=500/>
 
 Unfortunately, even though most of the work tends to be in the **munge** part of the process, when we do try and make data science reproducible, we tend to focus mainly on reprodibility of the **science** step.
 
 That seems like a bad idea, especially if we're doing unsupervised learning, where often our time is spent like this:
 
-<img src="charts/munge-unsupervised.png" alt="Typical Data science Process" width=500/>
+<img src="notebooks/charts/munge-unsupervised.png" alt="Typical Data science Process" width=500/>
 
 We're going to try to improve this to a process that is **reproducible from start to finish**. 
 
