@@ -1,3 +1,12 @@
+# Up Your Bus Number
+## A Workflow for Reproducible Data Science
+
+**Bus Number** (bŭs nŭmʹbər), *noun*: 
+
+*The number of people that need to get hit by a bus before your data science
+project becomes irreproducible.*
+
+This number might be **zero**. In this tutorial, we aim to increase your bus number.
 
 ## The Reproducible Data Science Process
 ### How do you spend your "Data Science" time?
