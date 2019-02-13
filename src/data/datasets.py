@@ -7,7 +7,7 @@ from sklearn.datasets.base import Bunch
 from sklearn.model_selection import train_test_split
 from functools import partial
 
-from ..paths import processed_data_path, data_path, raw_data_path, interim_data_path
+from ..paths import processed_data_path, data_path, raw_data_path, interim_data_path, catalog_path
 from ..logging import logger
 from .fetch import fetch_file, unpack, get_dataset_filename
 from .utils import partial_call_signature, serialize_partial, deserialize_partial, process_dataset_default
@@ -102,7 +102,7 @@ def available_datasources(datasource_file='datasources.json',
         Tuple (available_datasource_dict, available_datasource_dict_filename)
     """
     if datasource_path is None:
-        datasource_path = _MODULE_DIR
+        datasource_path = catalog_path
 
     datasource_file_fq = pathlib.Path(datasource_path) / datasource_file
 
