@@ -107,4 +107,4 @@ Create and activate your `bus_number_tutorial` conda environment using the above
 
 ### Exercise 4: Pick up this tutorial in your new repo
 * Copy the notebooks from `bus_number` into your new `bus_number_tutorial` repo
-* Run `jupyter notebook` and open `notebooks/10-reproducible-environment.ipynb`
+* Run `jupyter notebook` and open [notebooks/10-reproducible-environment.ipynb](notebooks/10-reproducible-environment.ipynb).
