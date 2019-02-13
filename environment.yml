@@ -4,18 +4,14 @@ dependencies:
   - pip:
     - -e .
     - python-dotenv>=0.5.1
-    - umap-learn
   - setuptools
   - wheel
   - sphinx
   - click
   - coverage
+  - ipykernel
   - pytest-cov
   - jupyter
-  - scikit-learn
-  - joblib
   - nb_conda
-  - pandas
   - requests
   - python>=3.6
-
