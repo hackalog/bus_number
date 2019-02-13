@@ -9,9 +9,9 @@ dependencies:
   - sphinx
   - click
   - coverage
+  - ipykernel
   - pytest-cov
   - jupyter
-  - joblib
   - nb_conda
   - requests
   - python>=3.6
