@@ -624,8 +624,7 @@ class DataSource(object):
         if dset is None:
             metadata = self.default_metadata(use_docstring=use_docstring)
             supplied_metadata = kwargs.pop('metadata', {})
-            kwargs['metadata'] = {**metadata, **supplied_metadata}
-            dset_opts = self.parse_function(**kwargs)
+            dset_opts = self.dataset_opts(metadata={**metadata, **supplied_metadata})
             dset = Dataset(**dset_opts)
             dset.dump(dump_path=cache_path, file_base=meta_hash)
 
