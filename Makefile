@@ -185,9 +185,22 @@ endif
 # Separate expressions are necessary because labels cannot be delimited by
 # semicolon; see <http://stackoverflow.com/a/11799865/1968>
 .PHONY: show-help
-show-help:
-	@echo "$$(tput bold)Available rules:$$(tput sgr0)"
+
+
+print-%  : ; @echo $* = $($*)
+
+HELP_VARS := PROJECT_NAME
+
+help-prefix:
+	@echo "To get started:"
+	@echo "  >>> $$(tput bold)make create_environment$$(tput sgr0)"
+	@echo "  >>> $$(tput bold)conda activate $(PROJECT_NAME)$$(tput sgr0)"
 	@echo
+	@echo "$$(tput bold)Project Variables:$$(tput sgr0)"
+
+show-help: help-prefix $(addprefix print-, $(HELP_VARS))
+	@echo
+	@echo "$$(tput bold)Available rules:$$(tput sgr0)"
 	@sed -n -e "/^## / { \
 		h; \
 		s/.*//; \
