@@ -1,4 +1,4 @@
-## Up Your Bus Number: A Workflow for Reproducible Data Science
+## Bus Number: A Workflow for Reproducible Data Science
 
 > **Bus Number** (bŭs nŭmʹbər), *noun*: 
 >
