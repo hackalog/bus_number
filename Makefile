@@ -1,117 +1,16 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 fetch_data unpack_data predict train test_environment
+.PHONY: clean requirements create_environment test_environment delete_environment show-help help-prefix
 
-#################################################################################
-# GLOBALS                                                                       #
-#################################################################################
-
-PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
-PROFILE = default
 PROJECT_NAME = bus_number
-MODULE_NAME = src
 PYTHON_INTERPRETER = python3
 VIRTUALENV = conda
 
-#################################################################################
-# COMMANDS                                                                      #
-#################################################################################
-
 ## Install or update Python Dependencies
 requirements: test_environment environment.lock
-
-## convert raw datasets into fully processed datasets
-data: transform_data
-
-## Fetch, Unpack, and Process raw DataSources
-sources: process_sources
-
-fetch_sources:
-	$(PYTHON_INTERPRETER) -m src.data.make_dataset fetch
-
-unpack_sources:
-	$(PYTHON_INTERPRETER) -m src.data.make_dataset unpack
-
-process_sources:
-	$(PYTHON_INTERPRETER) -m src.data.make_dataset process
-
-## Apply Transformations to produce fully processed Datsets
-transform_data:
-	$(PYTHON_INTERPRETER) -m src.data.apply_transforms transformer_list.json
-
-## train / fit / build models
-train: models/model_list.json
-	$(PYTHON_INTERPRETER) -m src.models.train_models model_list.json
-
-## predict / transform / run experiments
-predict: models/predict_list.json
-	$(PYTHON_INTERPRETER) -m src.models.predict_model predict_list.json
-
-## Convert predictions / transforms / experiments into output data
-analysis: reports/analysis_list.json
-	$(PYTHON_INTERPRETER) -m src.analysis.run_analysis analysis_list.json
 
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
-
-## Delete all interim (DataSource) files
-clean_interim:
-	rm -rf data/interim/*
-
-## Delete the raw downloads directory
-clean_raw:
-	rm -f data/raw/*
-
-## Delete all processed datasets
-clean_processed:
-	rm -f data/processed/*
-
-## Delete all trained models
-clean_models:
-	rm -f models/trained/*
-	rm -f models/trained_models.json
-
-## Delete all predictions
-clean_predictions:
-	rm -f models/predictions/*
-	rm -f models/predictions.json
-
-clean_workflow:
-	rm -f src/data/raw_datasets.json
-	rm -f src/data/transformer_list.json
-	rm -f models/model_list.json
-	rm -f models/predict_list.json
-	rm -f models/predictions.json
-	rm -f models/trained_models.json
-	rm -f reports/analysis_list.json
-	rm -f reports/summary_list.json
-	rm -f reports/analyses.json
-	rm -f reports/summaries.json
-
-## Run all Unit Tests
-test:
-	cd src && pytest --doctest-modules --verbose --cov
-
-## Lint using flake8
-lint:
-	flake8 src
-
-## Upload Data to S3
-sync_data_to_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync data/ s3://$(BUCKET)/data/
-else
-	aws s3 sync data/ s3://$(BUCKET)/data/ --profile $(PROFILE)
-endif
-
-## Download Data from S3
-sync_data_from_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync s3://$(BUCKET)/data/ data/
-else
-	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
-endif
 
 environment.lock: environment.yml
 ifeq (conda, $(VIRTUALENV))
@@ -157,15 +56,6 @@ endif
 endif
 	$(PYTHON_INTERPRETER) test_environment.py
 
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-
-
-
-#################################################################################
-# Self Documenting Commands                                                     #
-#################################################################################
 
 .DEFAULT_GOAL := show-help
 
@@ -184,12 +74,10 @@ endif
 # 	* print line
 # Separate expressions are necessary because labels cannot be delimited by
 # semicolon; see <http://stackoverflow.com/a/11799865/1968>
-.PHONY: show-help
-
-
-print-%  : ; @echo $* = $($*)
 
 HELP_VARS := PROJECT_NAME
+
+print-%  : ; @echo $* = $($*)
 
 help-prefix:
 	@echo "To get started:"
