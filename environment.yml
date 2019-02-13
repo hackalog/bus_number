@@ -2,16 +2,10 @@ name: bus_number
 dependencies:
   - pip
   - pip:
-    - -e .
-    - python-dotenv>=0.5.1
+    - cookiecutter
   - setuptools
   - wheel
-  - sphinx
-  - click
-  - coverage
   - ipykernel
-  - pytest-cov
   - jupyter
   - nb_conda
-  - requests
   - python>=3.6
