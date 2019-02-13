@@ -37,5 +37,5 @@ This repo is all about **getting you started doing Reproducible Data Science** ,
 
     https://github.com/hackalog/bus_number
 
-To get started, open [Tutorial 1: Reproducible Environments](tutorial-1.md).
+To get started, open [Tutorial 1: Reproducible Environments](TUTORIAL.md).
 
