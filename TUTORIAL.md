@@ -91,7 +91,7 @@ Create a project called `Bus Number Tutorial`:
 * Use `conda` as your virtualenv manager
 * Use python 3.6 or greater
 
-When complete, you should have a fully populated project directory, complete with customized `README.md`.
+When complete, you should have a fully populated project directory (`bus_number_tutorial`), complete with customized `README.md`.
 
 We will be working in this project from now on.
 
@@ -100,18 +100,24 @@ We will be working in this project from now on.
 
 Everyone's computing environment is different. How can we ensure that another user running a different platform can successfully run the code you are creating? How do we know they are using the same versions of your code and all its various supporting libraries? How do we reproduce your working environment on someone else's machine?
 
-In short, by using **virtual environments**. In this case, we're going to use `conda` (as provided by either *anaconda* or *miniconda*) to create and manage these environments. Furthermore, we use an **environment file**, `environment.yml` to specify all of the dependencies that need to be installed to run our code.
+In short, by using **virtual environments**. 
+
+In this toolkit, we use `conda` (as provided by either *anaconda* or *miniconda*) to create and manage virtual environments. Furthermore, we use an **environment file**, `environment.yml` to specify all of the dependencies that need to be installed to run our code.
     
-Two `make` commands  ensure that we have the appropriate environment:
+Two `make` commands  ensure that we have the appropriate environment. Use
 * `make create_environment`: for the initial creation of a project specific conda environment
-* `make requirements`: to update our environment to the latest version of the `environment.yml` specs.
+* `make requirements`: to update your environment whenever you change your `environment.yml` specs.
 
-We will get to `make` in the next section.
+If you ever get the urge to delete your environment and start again from scratch, you can do a
+* `make delete_environment`
 
-**Caveat**: Technically speaking, as implemeted in this workflow, a `conda` environment is **not reproducible**. Even if you specify a specific version of a package in your `environment.yml`, the way its dependencies get resolved may differ in their versions. One way to fix this is to have an additional file called a **lockfile** that ensure that the environment is completely reproducible (eg. `pipenv` does this). This is the **right way** to handle such things, and we are hoping conda catches up quickly. In the meantime, we've simulated this behavior using an `environment.yml` and an `environment.lock` file generated from it.
+We will get to `make` in the next section of this tutorial.
+
+**Caveat**: Technically speaking, a `conda` environment created from an `environment.yml` file is likely **not reproducible**. Even if you specify a specific version of a package in your `environment.yml`, the way its dependencies get resolved may differ from system to system. One way to work around this ambiguity is to have an additional file (called a **lockfile**) that explicitly records all dependencies and version numbers. This is the **great way** to handle ambiguity, while keeping your `environment.yml` requirements manageable. In this toolkig, we have implemented this lockfile mechanism by automatically generating an `environment.lock` file from your `environment.yml` whenever it changes.
 
 ### Exercise 3: Set up your virtual environment and install all dependencies
-Create and activate your `bus_number_tutorial` conda environment using the above `make` commands.
+* Create and activate your `bus_number_tutorial` conda environment using the above `make` commands.
+* Look at the difference between `environment.yml` and the generated `environment.lock`
 
-### Exercise 4: Pick up this tutorial in your new repo
+### Exercise 4: Pick up this tutorial in your new conda environment
 * Run `jupyter notebook` and open `notebooks/10-reproducible-environment.ipynb`.
