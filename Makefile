@@ -3,6 +3,7 @@
 PROJECT_NAME = bus_number
 PYTHON_INTERPRETER = python3
 VIRTUALENV = conda
+CONDA_EXE  = /anaconda/bin/conda
 
 ## Install or update Python Dependencies
 requirements: test_environment environment.lock
